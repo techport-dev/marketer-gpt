@@ -1,0 +1,19 @@
+{
+  "name": "marketer-gpt",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "turbo build",
+    "start:dev": "turbo run dev",
+    "start:prod": "turbo run prod",
+    "lint": "turbo lint",
+    "ui:add": "pnpm --filter web ui:add"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "turbo": "^1.12.5"
+  }
+}
