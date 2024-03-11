@@ -40,6 +40,51 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
+type DragDropUIProps = {
+  isDragAccept: boolean;
+  isDragReject: boolean;
+  open: () => void;
+};
+
+const DragDropUI: FC<DragDropUIProps> = ({
+  isDragAccept,
+  isDragReject,
+  open,
+}) => {
+  return (
+    <>
+      {isDragAccept ? (
+        <div className="flex justify-center items-center min-h-24">
+          <p className="text-blue-500">Drop an image here</p>
+        </div>
+      ) : isDragReject ? (
+        <div className="flex justify-center items-center min-h-24">
+          <p className="text-red-500">Invalid file type</p>
+        </div>
+      ) : (
+        <div className="min-h-24">
+          <div className="flex justify-center items-center mb-3">
+            <ArrowUpTrayIcon className="h-8 w-8" />
+          </div>
+
+          <p className="text-sm">
+            Drag an image here or{" "}
+            <span
+              className="text-blue-600 font-semibold underline cursor-pointer"
+              onClick={open}
+            >
+              upload a file
+            </span>
+          </p>
+          <em className="text-sm">
+            (Only *.jpeg and *.png images will be accepted)
+          </em>
+        </div>
+      )}
+    </>
+  );
+};
+
 const Fileupload: FC<FileuploadProps> = ({ field, options }) => {
   const {
     getRootProps,
@@ -81,31 +126,11 @@ const Fileupload: FC<FileuploadProps> = ({ field, options }) => {
         className={`border-2 border-dashed border-gray-300 rounded-md p-8 text-center transition-colors flex-1 `}
       >
         <Input {...getInputProps()} type="file" />
-
-        {isDragAccept ? (
-          <div className="flex justify-center items-center min-h-24">
-            <p className="text-blue-500">Drop an image here</p>
-          </div>
-        ) : (
-          <div className="min-h-24">
-            <div className="flex justify-center items-center mb-3">
-              <ArrowUpTrayIcon className="h-8 w-8" />
-            </div>
-
-            <p className="text-sm">
-              Drag an image here or{" "}
-              <span
-                className="text-blue-600 font-semibold underline cursor-pointer"
-                onClick={open}
-              >
-                upload a file
-              </span>
-            </p>
-            <em className="text-sm">
-              (Only *.jpeg and *.png images will be accepted)
-            </em>
-          </div>
-        )}
+        <DragDropUI
+          isDragAccept={isDragAccept}
+          isDragReject={isDragReject}
+          open={open}
+        />
       </div>
 
       <FilePreview files={files} setFiles={setFiles} />
