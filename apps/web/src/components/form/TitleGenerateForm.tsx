@@ -19,36 +19,48 @@ import { Button } from "@/components/ui/button";
 const formFields = [
   {
     key: 1,
+    name: "titleType",
+    label: "Title Type",
+    type: "select",
+    options: [
+      { key: 1, value: "image", label: "Image" },
+      { key: 2, value: "text", label: "Text" },
+      { key: 3, value: "imageText", label: "Image & Text" },
+    ],
+    defaultValue: "imageText",
+  },
+  {
+    key: 2,
     name: "images",
     label: "Upload Image",
     type: "file",
   },
   {
-    key: 2,
+    key: 3,
     name: "imageDescription",
     label: "Image Description",
     type: "textarea",
   },
   {
-    key: 3,
+    key: 4,
     name: "subreddit",
     label: "Subreddit",
     type: "input",
   },
   {
-    key: 4,
+    key: 5,
     name: "lengthLimit",
     label: "Length Limit",
     type: "input",
   },
   {
-    key: 5,
+    key: 6,
     name: "avoidenceKeywords",
     label: "Avoidence Keywords",
     type: "input",
   },
   {
-    key: 6,
+    key: 7,
     name: "reference",
     label: "Reference",
     type: "input",
@@ -69,6 +81,7 @@ const TitleGenerateForm = () => {
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
     resolver: zodResolver(titleGenerateFormSchema),
     defaultValues: {
+      titleType: "",
       images: new File([], ""),
       imageDescription: "",
       subreddit: "",
@@ -101,6 +114,8 @@ const TitleGenerateForm = () => {
                     <FormRender
                       type={formField.type as FormType}
                       field={field}
+                      options={formField.options}
+                      defaultValue={formField.defaultValue}
                     />
                   </FormControl>
                   <FormMessage />

@@ -8,6 +8,9 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 const titleGenerateFormSchema = z.object({
+  titleType: z.string().trim().min(1, {
+    message: "TitleType is Required",
+  }),
   images: z
     .instanceof(File)
     .refine((file) => {
