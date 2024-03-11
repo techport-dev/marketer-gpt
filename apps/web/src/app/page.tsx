@@ -13,18 +13,17 @@ export default function Home() {
   return (
     <section className="container my-5">
       <div className="grid grid-cols-2">
-        <Tabs defaultValue="account" className="w-[400px]">
+        <Tabs defaultValue="title" className="w-[400px]">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="account">Account</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="title">Title</TabsTrigger>
+            <TabsTrigger value="comment">Comment</TabsTrigger>
           </TabsList>
-          <TabsContent value="account">
+          <TabsContent value="title">
             <Card>
               <CardHeader>
-                <CardTitle>Account</CardTitle>
+                <CardTitle>Post Title</CardTitle>
                 <CardDescription>
-                  Make changes to your account here. Click save when you&apos;re
-                  done.
+                  Generate a title for your post
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -32,11 +31,14 @@ export default function Home() {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="password">
+          <TabsContent value="comment">
             <Card>
               <CardHeader>
-                <CardTitle>Password</CardTitle>
+                <CardTitle>Comment</CardTitle>
               </CardHeader>
+              <CardDescription>
+                Generate a comment for your post
+              </CardDescription>
               <CardContent className="space-y-2"></CardContent>
             </Card>
           </TabsContent>

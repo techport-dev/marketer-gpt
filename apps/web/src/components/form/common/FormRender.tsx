@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ControllerRenderProps } from "react-hook-form";
 import { type FormFieldsType } from "../TitleGenerateForm";
+import Fileupload from "./Fileupload";
 
 export type FormType =
   | "input"
@@ -23,6 +24,10 @@ const FormRender: FC<FormRenderProps> = ({ type, field }) => {
       return <Input {...field} />;
     case "textarea":
       return <Textarea {...field} />;
+    case "file":
+      return <Fileupload field={field} />;
+    default:
+      <Input {...field} />;
     // default:
     //   return <Input {...field} value={field.value as string} />;
   }

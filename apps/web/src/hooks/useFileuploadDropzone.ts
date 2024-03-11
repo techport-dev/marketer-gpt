@@ -1,9 +1,12 @@
-import { FileWithPreview } from "@/components/form/common/Fileupload";
-import { useState } from "react";
+import {
+  FileWithPreview,
+  FileuploadProps,
+} from "@/components/form/common/Fileupload";
+import { FC, useState } from "react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 
-const useFileuploadDropzone = ({ options }: { options?: DropzoneOptions }) => {
+const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
 
   const {
@@ -26,6 +29,7 @@ const useFileuploadDropzone = ({ options }: { options?: DropzoneOptions }) => {
       "image/webp": [".webp"],
     },
     onDrop: (acceptFiles) => {
+      field.onChange(acceptFiles[0]);
       setFiles(
         acceptFiles.map((file) =>
           Object.assign(file, {

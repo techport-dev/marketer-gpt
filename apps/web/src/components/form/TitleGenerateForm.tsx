@@ -17,12 +17,12 @@ import FormRender, { type FormType } from "./common/FormRender";
 import { Button } from "@/components/ui/button";
 
 const formFields = [
-  // {
-  //   key: 1,
-  //   name: "images",
-  //   label: "Upload Image",
-  //   type: "file",
-  // },
+  {
+    key: 1,
+    name: "images",
+    label: "Upload Image",
+    type: "file",
+  },
   {
     key: 2,
     name: "imageDescription",
@@ -56,18 +56,12 @@ const formFields = [
 ];
 
 export type FormFieldsType =
-  // | "images"
+  | "images"
   | "imageDescription"
   | "subreddit"
   | "lengthLimit"
   | "avoidenceKeywords"
   | "reference";
-
-const FormSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-});
 
 const TitleGenerateForm = () => {
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
@@ -75,12 +69,14 @@ const TitleGenerateForm = () => {
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
     resolver: zodResolver(titleGenerateFormSchema),
     defaultValues: {
+      images: new File([], ""),
       imageDescription: "",
       subreddit: "",
       lengthLimit: "",
       avoidenceKeywords: "",
       reference: "",
     },
+    mode: "onChange",
   });
 
   const onSubmit = (values: any) => {
@@ -90,10 +86,7 @@ const TitleGenerateForm = () => {
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-2/3 space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {formFields.map((formField) => (
             <FormField
               key={formField.key}
@@ -101,7 +94,9 @@ const TitleGenerateForm = () => {
               name={formField.name as FormFieldsType}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{formField.label}</FormLabel>
+                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                    {formField.label}
+                  </FormLabel>
                   <FormControl>
                     <FormRender
                       type={formField.type as FormType}
