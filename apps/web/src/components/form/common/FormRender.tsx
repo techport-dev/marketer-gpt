@@ -46,7 +46,9 @@ const FormRender: FC<FormRenderProps> = ({
       return (
         <Select
           onValueChange={(value) => value && field.onChange(value)}
-          value={field.vlaue}
+          value={field.value || defaultValue}
+
+          // defaultValue={defaultValue}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a title" />

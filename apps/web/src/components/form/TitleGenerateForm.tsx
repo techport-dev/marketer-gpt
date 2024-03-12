@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import FormRender, { type FormType } from "./common/FormRender";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 
 const formFields = [
   {
@@ -81,7 +82,7 @@ const TitleGenerateForm = () => {
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
     resolver: zodResolver(titleGenerateFormSchema),
     defaultValues: {
-      titleType: "",
+      titleType: "imageText",
       images: new File([], ""),
       imageDescription: "",
       subreddit: "",
@@ -92,34 +93,77 @@ const TitleGenerateForm = () => {
     mode: "onChange",
   });
 
+  const titleType = form.getValues("titleType");
+
+  useEffect(() => {
+    const fieldsToUnregister =
+      titleType === "image"
+        ? ["imageDescription"]
+        : titleType === "text"
+          ? ["images"]
+          : [];
+
+    fieldsToUnregister.forEach((fieldName) => {
+      form.unregister(fieldName as FormFieldsType);
+    });
+  }, [form, titleType]);
+
+  const filterFormFields = (formField: any) => {
+    // Directly return the opposite of the condition you're checking for.
+    // This makes the function more concise and easier to understand.
+    if (
+      (titleType === "image" && formField.name === "imageDescription") ||
+      (titleType === "text" && formField.name === "images")
+    ) {
+      // form.unregister(formField.name);
+      return false;
+    }
+    return true;
+  };
+
   const onSubmit = (values: any) => {
     console.log("onSubmit values are ", values);
+    axios({
+      url: "http://localhost:5000/api/v1/gpt/aiResponse",
+      method: "POST",
+      data: values,
+    })
+      .then((res) => {
+        console.log("response is ", res.data);
+        form.reset();
+      })
+      .catch((err) => {
+        console.log("error is ", err.message);
+        form.reset();
+      });
   };
 
   return (
     <FormProvider {...form}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {formFields.map((formField) => (
+          {formFields.filter(filterFormFields).map((formField) => (
             <FormField
               key={formField.key}
               control={form.control}
               name={formField.name as FormFieldsType}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
-                    {formField.label}
-                  </FormLabel>
-                  <FormControl>
-                    <FormRender
-                      type={formField.type as FormType}
-                      field={field}
-                      options={formField.options}
-                      defaultValue={formField.defaultValue}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <>
+                  <FormItem>
+                    <FormLabel className="after:content-['*'] after:ml-0.5 after:text-red-500">
+                      {formField.label}
+                    </FormLabel>
+                    <FormControl>
+                      <FormRender
+                        type={formField.type as FormType}
+                        field={field}
+                        options={formField.options}
+                        defaultValue={formField.defaultValue}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                </>
               )}
             />
           ))}

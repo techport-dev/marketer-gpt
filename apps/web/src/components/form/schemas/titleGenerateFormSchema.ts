@@ -19,10 +19,15 @@ const titleGenerateFormSchema = z.object({
     .refine(
       (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
       "Invalid file type"
-    ),
-  imageDescription: z.string().trim().min(1, {
-    message: "Imagedesc is Required",
-  }),
+    )
+    .optional(),
+  imageDescription: z
+    .string()
+    .trim()
+    .min(1, {
+      message: "Imagedesc is Required",
+    })
+    .optional(),
   subreddit: z.string().trim().min(1, {
     message: "Subreddit is Required",
   }),

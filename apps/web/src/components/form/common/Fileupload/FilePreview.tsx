@@ -20,16 +20,14 @@ const FilePreview: FC<FilePreviewProps> = ({ files, setFiles }) => {
             className="flex items-center justify-between mt-4 rounded"
           >
             <div className="flex items-center w-full gap-x-4">
-              <div className="p-2 flex flex-wrap ">
+              <div className="p-2 flex flex-wrap">
                 <div className="group relative inline-block text-sm">
                   <div className="relative overflow-hidden rounded-xl border border-gray-200">
                     <div className="h-14 w-14">
                       <button type="button" className="h-full w-full">
                         <span
                           className="flex items-center h-full w-full justify-center bg-gray-500 bg-cover bg-center text-white"
-                          style={{
-                            backgroundImage: `url(${file.preview})`,
-                          }}
+                          style={{ backgroundImage: `url(${file.preview})` }}
                         ></span>
                       </button>
                     </div>
@@ -37,13 +35,13 @@ const FilePreview: FC<FilePreviewProps> = ({ files, setFiles }) => {
                 </div>
               </div>
 
-              <div>
+              <div className="flex-1 min-w-0">
                 <a
                   href={file.preview}
                   target="_blank"
-                  className="text-xs text-blue-600 hover:text-blue-400"
+                  className="text-xs text-blue-600 hover:text-blue-400 flex flex-col items-start gap-3 whitespace-normal break-all"
                 >
-                  {file.name}
+                  <span className="break-all">{file.name}</span>
                 </a>
               </div>
 
@@ -52,8 +50,6 @@ const FilePreview: FC<FilePreviewProps> = ({ files, setFiles }) => {
                   className="h-6 w-6 text-red-500 cursor-pointer"
                   onClick={() => {
                     setFiles([]);
-                    // setReferenceImages([]);
-                    // // field.value = new File([], "");
                     resetField("images");
                   }}
                 />
