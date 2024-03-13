@@ -2,12 +2,15 @@ import {
   FileWithPreview,
   FileuploadProps,
 } from "@/components/form/common/Fileupload";
+import fileToDataUrl from "@/components/form/helper/fileToDataUrl";
+import { imageSlice } from "@/lib/redux/slices/image";
+import { useDispatch } from "@/lib/redux/store";
 import { FC, useState } from "react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 
 const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
-  const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const dispatch = useDispatch();
 
   const {
     getRootProps,
@@ -30,13 +33,26 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
     },
     onDrop: (acceptFiles) => {
       field.onChange(acceptFiles[0]);
-      setFiles(
-        acceptFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        ) as FileWithPreview[]
-      );
+
+      const files = acceptFiles.map((file) => {
+        return Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        }) as FileWithPreview;
+      });
+
+      dispatch(imageSlice.actions.setFiles(files));
+
+      Promise.all(acceptFiles.map((file) => fileToDataUrl(file)))
+        .then((dataUrls) => {
+          dispatch(
+            imageSlice.actions.setReferenceImages(
+              dataUrls.map((dataUrl) => dataUrl as string)
+            )
+          );
+        })
+        .catch((err: any) => {
+          console.error("Error converting file to data URL.", err.message);
+        });
     },
     onDropRejected: (rejectedFiles) => {
       console.error(rejectedFiles);
@@ -55,8 +71,6 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
     isDragAccept,
     isDragReject,
     open,
-    files,
-    setFiles,
   };
 };
 

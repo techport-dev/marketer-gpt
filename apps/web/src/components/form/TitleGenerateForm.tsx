@@ -16,6 +16,10 @@ import {
 import FormRender, { type FormType } from "./common/FormRender";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import useSessionStorage from "@/hooks/useSessionStorage";
+import { v4 as uuidv4 } from "uuid";
+import { useSelector } from "@/lib/redux/store";
+import { selectImage } from "@/lib/redux/slices/image/selectors";
 
 const formFields = [
   {
@@ -24,9 +28,9 @@ const formFields = [
     label: "Title Type",
     type: "select",
     options: [
-      { key: 1, value: "image", label: "Image" },
-      { key: 2, value: "text", label: "Text" },
-      { key: 3, value: "imageText", label: "Image & Text" },
+      { key: 1, value: "imageText", label: "Image & Text" },
+      { key: 2, value: "image", label: "Image" },
+      { key: 3, value: "text", label: "Text" },
     ],
     defaultValue: "imageText",
   },
@@ -77,7 +81,12 @@ export type FormFieldsType =
   | "reference";
 
 const TitleGenerateForm = () => {
-  const [referenceImages, setReferenceImages] = useState<string[]>([]);
+  const [state, setValue] = useSessionStorage<Array<Record<string, string>>>(
+    "message",
+    []
+  );
+
+  const imageState = useSelector(selectImage);
 
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
     resolver: zodResolver(titleGenerateFormSchema),
@@ -115,27 +124,22 @@ const TitleGenerateForm = () => {
       (titleType === "image" && formField.name === "imageDescription") ||
       (titleType === "text" && formField.name === "images")
     ) {
-      // form.unregister(formField.name);
       return false;
     }
     return true;
   };
 
   const onSubmit = (values: any) => {
-    console.log("onSubmit values are ", values);
-    axios({
-      url: "http://localhost:5000/api/v1/gpt/aiResponse",
-      method: "POST",
-      data: values,
-    })
-      .then((res) => {
-        console.log("response is ", res.data);
-        form.reset();
-      })
-      .catch((err) => {
-        console.log("error is ", err.message);
-        form.reset();
-      });
+    setValue((prev) => [
+      ...prev,
+      {
+        ...values,
+        role: "user",
+        generationType: "Title",
+        id: uuidv4(),
+        base64Image: imageState.referenceImages[0],
+      },
+    ]);
   };
 
   return (

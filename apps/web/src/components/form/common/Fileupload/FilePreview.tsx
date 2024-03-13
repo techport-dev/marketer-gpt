@@ -1,15 +1,14 @@
 import React, { type Dispatch, FC, type SetStateAction } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import { FileWithPreview } from ".";
 import { useFormContext } from "react-hook-form";
+import { useDispatch, useSelector } from "@/lib/redux/store";
+import { selectImage } from "@/lib/redux/slices/image/selectors";
+import { imageSlice } from "@/lib/redux/slices/image";
 
-type FilePreviewProps = {
-  files: FileWithPreview[];
-  setFiles: Dispatch<SetStateAction<FileWithPreview[]>>;
-};
-
-const FilePreview: FC<FilePreviewProps> = ({ files, setFiles }) => {
+const FilePreview = () => {
   const { resetField } = useFormContext();
+  const { files } = useSelector(selectImage);
+  const dispatch = useDispatch();
 
   return (
     <div>
@@ -49,7 +48,8 @@ const FilePreview: FC<FilePreviewProps> = ({ files, setFiles }) => {
                 <TrashIcon
                   className="h-6 w-6 text-red-500 cursor-pointer"
                   onClick={() => {
-                    setFiles([]);
+                    dispatch(imageSlice.actions.setFiles([]));
+                    dispatch(imageSlice.actions.setReferenceImages([]));
                     resetField("images");
                   }}
                 />

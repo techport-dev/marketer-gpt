@@ -1,12 +1,11 @@
 "use client";
 
 import useFileuploadDropzone from "@/hooks/useFileuploadDropzone";
-import { FC, useMemo, useState } from "react";
-import { type DropzoneOptions, useDropzone } from "react-dropzone";
-import { toast } from "sonner";
-import { ArrowUpTrayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { FC, useMemo } from "react";
+import { type DropzoneOptions } from "react-dropzone";
+import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { Input } from "@/components/ui/input";
-import { useFormContext, type ControllerRenderProps } from "react-hook-form";
+import { type ControllerRenderProps } from "react-hook-form";
 import { type FormFieldsType } from "../../TitleGenerateForm";
 import FilePreview from "./FilePreview";
 
@@ -93,8 +92,6 @@ const Fileupload: FC<FileuploadProps> = ({ field, options }) => {
     isDragAccept,
     isDragReject,
     open,
-    files,
-    setFiles,
   } = useFileuploadDropzone({ field, options });
 
   const style = useMemo(
@@ -106,24 +103,13 @@ const Fileupload: FC<FileuploadProps> = ({ field, options }) => {
     [isDragAccept, isDragReject, isFocused]
   );
 
-  const fileToDataUrl = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
-
   return (
     <section>
       <div
         {...getRootProps({
           style: style,
         })}
-        className={`border-2 border-dashed border-gray-300 rounded-md p-8 text-center transition-colors flex-1 `}
+        className={`border-2 border-dashed border-gray-300 rounded-md p-8 text-center transition-colors flex-1`}
       >
         <Input {...getInputProps()} type="file" />
         <DragDropUI
@@ -133,7 +119,7 @@ const Fileupload: FC<FileuploadProps> = ({ field, options }) => {
         />
       </div>
 
-      <FilePreview files={files} setFiles={setFiles} />
+      <FilePreview />
     </section>
   );
 };

@@ -66,8 +66,6 @@ const FormRender: FC<FormRenderProps> = ({
       );
     default:
       <Input {...field} />;
-    // default:
-    //   return <Input {...field} value={field.value as string} />;
   }
 };
 
