@@ -81,10 +81,9 @@ export type FormFieldsType =
   | "reference";
 
 const TitleGenerateForm = () => {
-  const [state, setValue] = useSessionStorage<Array<Record<string, string>>>(
-    "message",
-    []
-  );
+  const [messageData, setMessageData] = useSessionStorage<
+    Array<Record<string, string>>
+  >("message", []);
 
   const imageState = useSelector(selectImage);
 
@@ -130,16 +129,30 @@ const TitleGenerateForm = () => {
   };
 
   const onSubmit = (values: any) => {
-    setValue((prev) => [
-      ...prev,
+    const newData = [
+      ...messageData,
       {
         ...values,
         role: "user",
         generationType: "Title",
         id: uuidv4(),
-        base64Image: imageState.referenceImages[0],
+        base64Image: imageState?.referenceImages[0],
       },
-    ]);
+    ];
+
+    setMessageData(newData);
+
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/api/v1/gpt/aiResponse",
+      data: newData,
+    })
+      .then((res) => {
+        console.log("the response is ", res.data);
+      })
+      .catch((err) => {
+        console.error("the error is ", err.message);
+      });
   };
 
   return (

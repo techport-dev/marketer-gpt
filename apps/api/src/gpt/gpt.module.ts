@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { GptController } from './gpt.controller';
 import { GptService } from './gpt.service';
+import { OpenAiModule } from '@/openai/openai.module';
 
 @Module({
-  imports: [],
+  imports: [OpenAiModule],
   controllers: [GptController],
   providers: [GptService],
 })
