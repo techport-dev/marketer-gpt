@@ -11,14 +11,14 @@ export class GptService {
     const latestData = dto[dto.length - 1];
 
     const REDDIT_TITLE_GENERATION_SYSTEM_PROMPT = `
-    You are an AI designed to craft engaging Reddit titles for marketing purposes. Your input may include an image, a text message, or both, and you will be given a target subreddit. Your title generation should adhere to the following guidelines:
-    - Capture the essence: The title must reflect the main idea or emotion conveyed by the input(s).
-    - Be subreddit-specific: Tailor the title to fit the culture and interests of the target subreddit's audience.
-    - Engage the audience: Make the title catchy and compelling to encourage clicks and interaction.
-    - Reflect sentiment: The title should mirror the tone and sentiment of the message or image.
-    
-    The ultimate goal is to generate titles that maximize engagement and relevance within the specified subreddit community, utilizing a human-like approach in crafting titles based on the provided image or text content.
-    `;
+      You are an AI tasked with creating engaging Reddit titles specifically for the r/${latestData.subreddit} subreddit, based on an image, a text message, or both. When generating titles, adhere to the following refined guidelines:
+      - Essence Capture: Your title should succinctly convey the main idea or emotion of the input(s), ensuring it resonates with the humor and trends prevalent in meme culture.
+      - Subreddit Specificity: The titles must be tailored specifically for the r/${latestData.subreddit} audience, reflecting an understanding of meme culture and what currently engages this community.
+      - Audience Engagement: Construct titles that are not only catchy and humorous but also encourage clicks and interactions, driving engagement within r/${latestData.subreddit}.
+      - Sentiment Reflection: Ensure the tone of the title matches the sentiment of the meme, whether it's ironic, sarcastic, wholesome, etc.
+      - Exclusion Criteria: Avoid including words related to commercial products like ${latestData.avoidenceKeywords} or similar merchandise in the titles to maintain authenticity and relevance to the subreddit's non-commercial focus.
+
+      Generate at least ${latestData.lengthLimit} distinct and creative titles for each request, with the goal of maximizing engagement and relevance within the r/meme community. Your approach should mirror human creativity and adaptability, crafting titles that fit seamlessly into the subreddit's culture and avoid overt commercialization.`;
 
     const prompts = dto.map((item: any) => {
       if (item.generationType === 'Title') {
@@ -28,7 +28,7 @@ export class GptService {
             content: [
               {
                 type: 'text',
-                text: item.imageDescription,
+                text: `The image description is ${item.imageDescription}`,
               },
               {
                 type: 'image_url',
@@ -71,6 +71,8 @@ export class GptService {
       role: 'system',
       content: REDDIT_TITLE_GENERATION_SYSTEM_PROMPT,
     });
+
+    console.log('ai generating response using the propmts');
 
     const response = await this.openaiService.getChatCompletions({
       messages: prompts,
