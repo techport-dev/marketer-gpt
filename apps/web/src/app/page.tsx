@@ -11,6 +11,23 @@ import {
 import Messages from "@/components/messages";
 import CommentGenerateForm from "@/components/form/CommentGenerateForm";
 
+const tabsCard = [
+  {
+    key: 1,
+    title: "Post Title",
+    description: "Generate a title for your post",
+    content: <TitleGenerateForm />,
+    tabValue: "title",
+  },
+  {
+    key: 2,
+    title: "Comment",
+    description: "Generate a comment/comment reply for your post",
+    content: <CommentGenerateForm />,
+    tabValue: "comment",
+  },
+];
+
 export default function Home() {
   return (
     <section className="container my-5">
@@ -20,32 +37,17 @@ export default function Home() {
             <TabsTrigger value="title">Title</TabsTrigger>
             <TabsTrigger value="comment">Comment</TabsTrigger>
           </TabsList>
-          <TabsContent value="title">
-            <Card>
-              <CardHeader>
-                <CardTitle>Post Title</CardTitle>
-                <CardDescription>
-                  Generate a title for your post
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <TitleGenerateForm />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="comment">
-            <Card>
-              <CardHeader>
-                <CardTitle>Comment</CardTitle>
-                <CardDescription>
-                  Generate a comment/comment reply for your post
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <CommentGenerateForm />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {tabsCard.map((data) => (
+            <TabsContent key={data.key} value={data.tabValue}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{data.title}</CardTitle>
+                  <CardDescription>{data.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">{data.content}</CardContent>
+              </Card>
+            </TabsContent>
+          ))}
         </Tabs>
         <div className="flex-1 max-h-[80vh] border overflow-y-auto mt-12 rounded">
           <Messages />

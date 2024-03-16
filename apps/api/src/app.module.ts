@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import GptModule from './gpt/gpt.module';
 import { ConfigModule } from '@nestjs/config';
+import { AllExceptionsFilter } from './shared/all-exceptions.filter';
+
+const APP_FILTER = 'APP_FILTER';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,7 +13,12 @@ import { ConfigModule } from '@nestjs/config';
     }),
     GptModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {}

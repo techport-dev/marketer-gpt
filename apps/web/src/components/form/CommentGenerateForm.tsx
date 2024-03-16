@@ -16,6 +16,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import commentGenerateFormSchema from "./schemas/commentGenerateFormSchema";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 const formFields = [
   {
@@ -24,9 +26,21 @@ const formFields = [
     label: "Comment Type",
     type: "select",
     options: [
-      { key: 1, value: "postReply", label: "PostReply" },
-      { key: 2, value: "commentReply", label: "CommentReply" },
-      { key: 3, value: "followupCommentReply", label: "FollowupCommentReply" },
+      {
+        key: 1,
+        label: "Post Reply",
+        value: "postReply",
+      },
+      {
+        key: 2,
+        label: "Comment Reply",
+        value: "commentReply",
+      },
+      {
+        key: 3,
+        label: "Followup CommentReply",
+        value: "followupCommentReply",
+      },
     ],
     defaultValue: "postReply",
   },
@@ -52,6 +66,27 @@ const CommentGenerateForm = () => {
 
   const onSubmit = (values: z.infer<typeof commentGenerateFormSchema>) => {
     console.log("onSubmit values are ", values);
+
+    const newData = {
+      ...values,
+      role: "user",
+      generationType: "Comment",
+      id: uuidv4(),
+    };
+
+    console.log("newData are ", newData);
+
+    // axios({
+    //   method: "POST",
+    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
+    //   data: newData,
+    // })
+    //   .then((res) => {
+    //     console.log("the response is ", res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.error("the error is ", err.message);
+    //   });
   };
 
   return (

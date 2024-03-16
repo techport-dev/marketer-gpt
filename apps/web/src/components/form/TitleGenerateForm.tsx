@@ -129,32 +129,35 @@ const TitleGenerateForm = () => {
   };
 
   const onSubmit = (values: any) => {
-    const newData = [
-      ...messageData,
-      {
-        ...values,
-        role: "user",
-        generationType: "Title",
-        id: uuidv4(),
-        base64Image: imageState?.referenceImages[0],
-      },
-    ];
+    const newData = {
+      ...values,
+      role: "user",
+      generationType: "Title",
+      id: uuidv4(),
+      base64Image: imageState?.referenceImages[0],
+    };
 
-    console.log("newData is ", newData);
+    // setMessageData((prev) => [
+    //   ...prev,
+    //   {
+    //     ...values,
+    //     role: "user",
+    //     generationType: "Title",
+    //     id: uuidv4(),
+    //   },
+    // ]);
 
-    setMessageData(newData);
-
-    // axios({
-    //   method: "POST",
-    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
-    //   data: newData,
-    // })
-    //   .then((res) => {
-    //     console.log("the response is ", res.data);
-    //   })
-    //   .catch((err) => {
-    //     console.error("the error is ", err.message);
-    //   });
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/api/v1/gpt/aiResponse",
+      data: newData,
+    })
+      .then((res) => {
+        console.log("the response is ", res.data);
+      })
+      .catch((err) => {
+        console.error("the error is ", err.message);
+      });
   };
 
   return (
