@@ -3,7 +3,7 @@ import { PuppeteerService } from '@/puppeteer/puppeteer.service';
 import { Injectable } from '@nestjs/common';
 // import fs from 'node:fs/promises';
 // import path from 'path';
-// console.log("hello nishan");
+
 import { type ChatCompletionMessageParam } from 'openai/resources';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class GptService {
   async getAIResponse(dto: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { base64Image, ...restdto } = dto;
-    console.log('resDto is ', restdto);
+    // console.log('resDto is ', restdto);
 
     if (dto.generationType === 'Title') {
       const REDDIT_TITLE_GENERATION_SYSTEM_PROMPT = `
@@ -165,6 +165,44 @@ export class GptService {
       } else if (dto.commentType === 'commentReply') {
         // const { title, imageUrl } = await this.getTitleImage();
         // console.log('title and image url is ', title, imageUrl);
+
+        const { browser, page } = await this.puppeteerService.launch({
+          headless: false,
+        });
+
+        const commentUrl = dto.url;
+        const subreddit = commentUrl.match(/\/r\/(\w+)/)[1];
+        const commentId = commentUrl.match(/\/([^\/]+)\/?$/)[1];
+        console.log('subreddit is ', subreddit);
+
+        const postUrl = commentUrl.replace(/\/[^\/]+\/?$/, '/');
+
+        console.log('post url is ', postUrl);
+
+        await page.goto(postUrl, {
+          waitUntil: 'networkidle2',
+        });
+
+        await this.puppeteerService.timer(3000);
+
+        const { title, imageUrl } = await this.getTitleImage();
+
+        console.log('title and image url is ', title, imageUrl);
+
+        await page.goto(commentUrl, {
+          waitUntil: 'networkidle2',
+        });
+
+        await this.puppeteerService.timer(3000);
+
+        // const commentText = await this.puppeteerService.getData({
+        //   selector: {
+        //     text: '#thing_t1_kva1k01 div.entry div.md > p',
+        //     type: 'text',
+        //   },
+        // });
+
+        // console.log('comment text is ', commentText);
       }
     }
   }

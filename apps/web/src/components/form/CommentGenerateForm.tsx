@@ -76,17 +76,17 @@ const CommentGenerateForm = () => {
 
     console.log("newData are ", newData);
 
-    // axios({
-    //   method: "POST",
-    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
-    //   data: newData,
-    // })
-    //   .then((res) => {
-    //     console.log("the response is ", res.data);
-    //   })
-    //   .catch((err) => {
-    //     console.error("the error is ", err.message);
-    //   });
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/api/v1/gpt/aiResponse",
+      data: newData,
+    })
+      .then((res) => {
+        console.log("the response is ", res.data);
+      })
+      .catch((err) => {
+        console.error("the error is ", err.message);
+      });
   };
 
   return (
