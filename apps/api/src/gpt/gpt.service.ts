@@ -3,6 +3,7 @@ import { PuppeteerService } from '@/puppeteer/puppeteer.service';
 import { Injectable } from '@nestjs/common';
 // import fs from 'node:fs/promises';
 // import path from 'path';
+// console.log("hello nishan");
 import { type ChatCompletionMessageParam } from 'openai/resources';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class GptService {
       },
     });
 
-    console.log('title is ', title);
+    // console.log('title is ', title);
 
     const imageUrl = await this.puppeteerService.getData({
       selector: {
