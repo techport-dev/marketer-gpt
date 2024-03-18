@@ -28,7 +28,6 @@ export class PuppeteerService {
 
   async launch(options?: Parameters<VanillaPuppeteer['launch']>[0]) {
     const browser = await puppeteer.launch({
-      ...options,
       headless: false,
       args: [
         '--no-sandbox',
@@ -37,6 +36,7 @@ export class PuppeteerService {
       ],
       defaultViewport: null,
       ignoreHTTPSErrors: true,
+      ...options,
     });
     this.browser = browser;
 

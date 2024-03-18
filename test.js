@@ -1,7 +1,10 @@
-function test(args){
-  return args([1,2,3]);
+const obj = {
+  headless: true
 }
 
+const newObject = {
+  headless: false,
+  ...obj,
+}
 
-
-console.log(test((prev) => [...prev,10] ));
+console.log(newObject);

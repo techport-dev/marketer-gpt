@@ -36,6 +36,21 @@ export class GptService {
     };
   }
 
+  urlOperation(url: string) {
+    const subreddit = url.match(/\/r\/(\w+)/)[1];
+    const commentId = url.match(/\/([^\/]+)\/?$/)[1];
+
+    const postUrl = url.replace(/\/[^\/]+\/?$/, '/');
+    const postId = postUrl.match(/comments\/([^\/]+)\//)[1];
+
+    return {
+      subreddit,
+      commentId,
+      postUrl,
+      postId,
+    };
+  }
+
   async getAIResponse(dto: any) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { base64Image, ...restdto } = dto;
@@ -120,7 +135,7 @@ export class GptService {
     } else {
       console.log('else dto generation type is ', dto);
       if (dto.commentType === 'postReply') {
-        const { browser, page } = await this.puppeteerService.launch({
+        const { page } = await this.puppeteerService.launch({
           headless: false,
         });
 
@@ -163,18 +178,12 @@ export class GptService {
 
         // console.log('GPT image response is ', response);
       } else if (dto.commentType === 'commentReply') {
-        const { browser, page } = await this.puppeteerService.launch({
+        const { page } = await this.puppeteerService.launch({
           headless: false,
         });
 
         const commentUrl = dto.url;
-        const subreddit = commentUrl.match(/\/r\/(\w+)/)[1];
-        const commentId = commentUrl.match(/\/([^\/]+)\/?$/)[1];
-        console.log('subreddit is ', subreddit);
-
-        const postUrl = commentUrl.replace(/\/[^\/]+\/?$/, '/');
-
-        console.log('post url is ', postUrl);
+        const { postUrl } = this.urlOperation(dto.url);
 
         await page.goto(postUrl, {
           waitUntil: 'networkidle2',
@@ -200,22 +209,16 @@ export class GptService {
         });
 
         console.log('comment text is ', commentText);
+
+        await this.puppeteerService.close();
       } else if (dto.commentType === 'followupCommentReply') {
-        const { browser, page } = await this.puppeteerService.launch({
+        const { page } = await this.puppeteerService.launch({
           headless: false,
         });
 
-        const commentUrl = dto.url;
-        const subreddit = commentUrl.match(/\/r\/(\w+)/)[1];
-        const commentId = commentUrl.match(/\/([^\/]+)\/?$/)[1];
-        console.log('subreddit is ', subreddit);
+        const { url: commentUrl } = dto;
 
-        const postUrl = commentUrl.replace(/\/[^\/]+\/?$/, '/');
-
-        const postId = postUrl.match(/comments\/([^\/]+)\//)[1];
-
-        console.log('post url is ', postUrl);
-        console.log('post id is ', postId);
+        const { commentId, postUrl, postId } = this.urlOperation(commentUrl);
 
         await page.goto(postUrl, {
           waitUntil: 'networkidle2',
@@ -227,10 +230,6 @@ export class GptService {
 
         console.log('title and image url is ', title, imageUrl);
 
-        // await page.goto(commentUrl, {
-        //   waitUntil: 'networkidle2',
-        // });
-
         await this.puppeteerService.timer(3000);
 
         console.log("now collecting followup comment's parent comment...");
@@ -240,26 +239,16 @@ export class GptService {
             const replyCommentId = `thing_t1_${commentId}`; // Example ID, adjust as necessary
             const replyComment = document.getElementById(replyCommentId);
 
-            const parents = [];
-            let currentElement = replyComment;
-            const parentElement = null;
+            const siteTableId = `siteTable_t3_${postId}`;
             let comments = [];
+            let currentElement = replyComment;
 
-            // console.log("first element's is ", currentElement);
-
-            while (currentElement.parentNode != null) {
-              console.log(
-                "current element's parent is ",
-                currentElement.parentNode,
-              );
-
+            while (currentElement && currentElement.id !== siteTableId) {
               if (
-                currentElement.className.includes('listing') ||
-                currentElement.className.includes('child')
+                (currentElement as HTMLElement).className.includes('listing') ||
+                (currentElement as HTMLElement).className.includes('child')
               ) {
-                console.log('true....');
-
-                (currentElement as any) = currentElement.parentNode;
+                currentElement = currentElement.parentNode as HTMLElement;
                 continue;
               }
 
@@ -268,34 +257,23 @@ export class GptService {
                   ?.innerText,
               );
 
-              // console.log(
-              //   'text is ',
-              //   currentElement.querySelector<HTMLElement>(
-              //     'div.entry div.md > p',
-              //   )?.innerText,
-              // );
-
-              (currentElement as any) = currentElement.parentNode;
+              currentElement = currentElement.parentNode as HTMLElement;
 
               // If you reach the "body" or "html" element, you can stop, or adjust the condition as needed
               if (
-                currentElement.tagName === 'BODY' ||
-                currentElement.tagName === 'HTML'
+                (currentElement as HTMLElement).tagName === 'BODY' ||
+                (currentElement as HTMLElement).tagName === 'HTML'
               ) {
                 break;
               }
 
-              // console.log('currentElement Id is ', currentElement.id);
-
-              if (currentElement.id === `siteTable_t3_${postId}`) {
-                // parents.pop();
-                // comments.pop();
-                // parentElement = parents[parents.length - 1];
+              if (
+                (currentElement as HTMLElement).id === `siteTable_t3_${postId}`
+              ) {
                 break;
               }
             }
             comments = [...new Set(comments)].reverse();
-            console.log('comments are ', comments);
 
             return comments;
           },
@@ -304,14 +282,7 @@ export class GptService {
 
         console.log('comments are ', comments);
 
-        // const permalinkCommentText = await this.puppeteerService.getData({
-        //   selector: {
-        //     text: '#thing_t1_kva1k01 div.entry div.md > p',
-        //     type: 'text',
-        //   },
-        // });
-
-        // console.log('permalink comment text is ', permalinkCommentText);
+        await this.puppeteerService.close();
       }
     }
   }
