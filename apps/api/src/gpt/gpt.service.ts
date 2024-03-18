@@ -163,9 +163,6 @@ export class GptService {
 
         // console.log('GPT image response is ', response);
       } else if (dto.commentType === 'commentReply') {
-        // const { title, imageUrl } = await this.getTitleImage();
-        // console.log('title and image url is ', title, imageUrl);
-
         const { browser, page } = await this.puppeteerService.launch({
           headless: false,
         });
@@ -195,14 +192,126 @@ export class GptService {
 
         await this.puppeteerService.timer(3000);
 
-        // const commentText = await this.puppeteerService.getData({
+        const commentText = await this.puppeteerService.getData({
+          selector: {
+            text: '#thing_t1_kva1k01 div.entry div.md > p',
+            type: 'text',
+          },
+        });
+
+        console.log('comment text is ', commentText);
+      } else if (dto.commentType === 'followupCommentReply') {
+        const { browser, page } = await this.puppeteerService.launch({
+          headless: false,
+        });
+
+        const commentUrl = dto.url;
+        const subreddit = commentUrl.match(/\/r\/(\w+)/)[1];
+        const commentId = commentUrl.match(/\/([^\/]+)\/?$/)[1];
+        console.log('subreddit is ', subreddit);
+
+        const postUrl = commentUrl.replace(/\/[^\/]+\/?$/, '/');
+
+        const postId = postUrl.match(/comments\/([^\/]+)\//)[1];
+
+        console.log('post url is ', postUrl);
+        console.log('post id is ', postId);
+
+        await page.goto(postUrl, {
+          waitUntil: 'networkidle2',
+        });
+
+        await this.puppeteerService.timer(3000);
+
+        const { title, imageUrl } = await this.getTitleImage();
+
+        console.log('title and image url is ', title, imageUrl);
+
+        // await page.goto(commentUrl, {
+        //   waitUntil: 'networkidle2',
+        // });
+
+        await this.puppeteerService.timer(3000);
+
+        console.log("now collecting followup comment's parent comment...");
+
+        const comments = await page.evaluate(
+          ({ commentId, postId }) => {
+            const replyCommentId = `thing_t1_${commentId}`; // Example ID, adjust as necessary
+            const replyComment = document.getElementById(replyCommentId);
+
+            const parents = [];
+            let currentElement = replyComment;
+            const parentElement = null;
+            let comments = [];
+
+            // console.log("first element's is ", currentElement);
+
+            while (currentElement.parentNode != null) {
+              console.log(
+                "current element's parent is ",
+                currentElement.parentNode,
+              );
+
+              if (
+                currentElement.className.includes('listing') ||
+                currentElement.className.includes('child')
+              ) {
+                console.log('true....');
+
+                (currentElement as any) = currentElement.parentNode;
+                continue;
+              }
+
+              comments.push(
+                currentElement.querySelector<HTMLElement>('div.entry div.md')
+                  ?.innerText,
+              );
+
+              // console.log(
+              //   'text is ',
+              //   currentElement.querySelector<HTMLElement>(
+              //     'div.entry div.md > p',
+              //   )?.innerText,
+              // );
+
+              (currentElement as any) = currentElement.parentNode;
+
+              // If you reach the "body" or "html" element, you can stop, or adjust the condition as needed
+              if (
+                currentElement.tagName === 'BODY' ||
+                currentElement.tagName === 'HTML'
+              ) {
+                break;
+              }
+
+              // console.log('currentElement Id is ', currentElement.id);
+
+              if (currentElement.id === `siteTable_t3_${postId}`) {
+                // parents.pop();
+                // comments.pop();
+                // parentElement = parents[parents.length - 1];
+                break;
+              }
+            }
+            comments = [...new Set(comments)].reverse();
+            console.log('comments are ', comments);
+
+            return comments;
+          },
+          { commentId, postId },
+        );
+
+        console.log('comments are ', comments);
+
+        // const permalinkCommentText = await this.puppeteerService.getData({
         //   selector: {
         //     text: '#thing_t1_kva1k01 div.entry div.md > p',
         //     type: 'text',
         //   },
         // });
 
-        // console.log('comment text is ', commentText);
+        // console.log('permalink comment text is ', permalinkCommentText);
       }
     }
   }

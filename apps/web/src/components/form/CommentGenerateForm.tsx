@@ -38,7 +38,7 @@ const formFields = [
       },
       {
         key: 3,
-        label: "Followup CommentReply",
+        label: "Followup Comment Reply",
         value: "followupCommentReply",
       },
     ],
