@@ -13,6 +13,13 @@ interface ConverstationData {
   comments: Array<string>;
 }
 
+interface CommentReplyPromptsParams {
+  postTitle: string;
+  imageDescription?: string;
+  subredditName: string;
+  userComment: string;
+}
+
 @Injectable()
 export class GptService {
   constructor(
@@ -43,7 +50,7 @@ export class GptService {
     };
   }
 
-  generatePrompts(data: ConverstationData) {
+  generateFollowupPrompts(data: ConverstationData) {
     const { postTitle, imageDescription, subredditName, comments } = data;
 
     let narrative = `Post Title: "${postTitle}"\n`;
@@ -81,6 +88,27 @@ export class GptService {
       systemPrompt,
       userPrompt,
     };
+  }
+
+  generateCommentReplyPrompts(data: CommentReplyPromptsParams) {
+    const { postTitle, imageDescription, subredditName, userComment } = data;
+
+    // System Prompt aimed at generating human-like replies
+    const systemPrompt =
+      `A post titled "${postTitle}" has been shared in the subreddit r/${subredditName}` +
+      `${imageDescription ? ` with an accompanying image described as "${imageDescription}"` : ''}.` +
+      ` A user commented: "${userComment}". As an AI, simulate a human-like reply that is thoughtful, personal, and engaging.` +
+      ` The reply should acknowledge the user's comment, provide information or insight if applicable, and encourage further conversation.`;
+
+    // User Prompt for crafting a reply that feels personal and human-like
+    const userPrompt =
+      `You've just seen a comment on your post titled "${postTitle}" in r/${subredditName}` +
+      `${imageDescription ? `, which includes an image described as "${imageDescription}"` : ''}, saying: "${userComment}".` +
+      ` Draft a reply as if you're responding personally. Your reply should feel warm, informative, and inviting,` +
+      ` reflecting a genuine human interaction. Aim to address their comment directly, share relevant details or experiences,` +
+      ` and perhaps ask a follow-up question to keep the conversation going.`;
+
+    return { systemPrompt, userPrompt };
   }
 
   urlOperation(url: string) {
@@ -226,11 +254,11 @@ export class GptService {
         // console.log('GPT image response is ', response);
       } else if (dto.commentType === 'commentReply') {
         const { page } = await this.puppeteerService.launch({
-          headless: false,
+          headless: true,
         });
 
         const commentUrl = dto.url;
-        const { postUrl } = this.urlOperation(dto.url);
+        const { postUrl, commentId, subreddit } = this.urlOperation(commentUrl);
 
         await page.goto(postUrl, {
           waitUntil: 'networkidle2',
@@ -250,7 +278,7 @@ export class GptService {
 
         const commentText = await this.puppeteerService.getData({
           selector: {
-            text: '#thing_t1_kva1k01 div.entry div.md > p',
+            text: `#thing_t1_${commentId} div.entry div.md`,
             type: 'text',
           },
         });
@@ -258,7 +286,52 @@ export class GptService {
         console.log('comment text is ', commentText);
 
         await this.puppeteerService.close();
+
+        const commentReplyData = {
+          postTitle: title,
+          imageDescription: '',
+          subredditName: subreddit,
+          userComment: commentText,
+        };
+
+        const { systemPrompt, userPrompt } =
+          this.generateCommentReplyPrompts(commentReplyData);
+
+        const response = await this.openaiService.getChatCompletions({
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt,
+            },
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: imageUrl,
+                    detail: 'high',
+                  },
+                },
+                {
+                  type: 'text',
+                  text: userPrompt,
+                },
+              ],
+            },
+          ],
+          model: 'gpt-4-vision-preview',
+          max_tokens: 2000,
+        });
+
+        return {
+          ...response,
+          msg: 'Suggested commentReply comment',
+        };
+
+        // end of commentReply
       } else if (dto.commentType === 'followupCommentReply') {
+        // start of followupCommentReply
         const { page } = await this.puppeteerService.launch({
           headless: true,
         });
@@ -339,7 +412,7 @@ export class GptService {
         };
 
         const { systemPrompt, userPrompt } =
-          this.generatePrompts(conversationData);
+          this.generateFollowupPrompts(conversationData);
 
         // console.log('System Prompt:\n', systemPrompt);
         // console.log('\nUser Prompt:\n', userPrompt);
