@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import React, { FC } from "react";
-import Image from "next/image";
-import Avatar from "react-avatar";
-import PluseLoader from "react-spinners/PulseLoader";
 import Markdown from "markdown-to-jsx";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type MessageItemProps = {
   className?: string;
@@ -21,8 +19,11 @@ const MessageItem: FC<MessageItemProps> = ({ className, message, status }) => {
   switch (status) {
     case "Loading":
       content = (
-        <div className="flex items-center justify-center w-full h-20">
-          <PluseLoader color="#000" size={10} />
+        <div className="w-full h-20 space-y-2">
+          {/* <PluseLoader color="#000" size={10} /> */}
+          <Skeleton className="h-4 w-[500px]" />
+          <Skeleton className="h-4 w-[500px]" />
+          <Skeleton className="h-4 w-[500px]" />
         </div>
       );
       break;
