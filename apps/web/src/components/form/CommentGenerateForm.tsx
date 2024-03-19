@@ -18,6 +18,10 @@ import { Button } from "@/components/ui/button";
 import commentGenerateFormSchema from "./schemas/commentGenerateFormSchema";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import { useDispatch } from "@/lib/redux/store";
+import { aiResponseSlice } from "@/lib/redux/slices/aiResponse";
+import { useMutation } from "@tanstack/react-query";
+import { aiResponseMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
 
 const formFields = [
   {
@@ -64,6 +68,23 @@ const CommentGenerateForm = () => {
     mode: "onChange",
   });
 
+  const mutation = useMutation({
+    mutationFn: aiResponseMutation,
+    onMutate: () => {
+      dispatch(aiResponseSlice.actions.setIsLoading());
+    },
+    onSuccess: (data) => {
+      console.log("the data is ", data);
+      dispatch(aiResponseSlice.actions.setIsSuccess(data));
+    },
+    onError: (error) => {
+      console.error("the error is ", error.message);
+      dispatch(aiResponseSlice.actions.setIsError(error.message));
+    },
+  });
+
+  const dispatch = useDispatch();
+
   const onSubmit = (values: z.infer<typeof commentGenerateFormSchema>) => {
     console.log("onSubmit values are ", values);
 
@@ -76,17 +97,21 @@ const CommentGenerateForm = () => {
 
     console.log("newData are ", newData);
 
-    axios({
-      method: "POST",
-      url: "http://localhost:5000/api/v1/gpt/aiResponse",
-      data: newData,
-    })
-      .then((res) => {
-        console.log("the response is ", res.data);
-      })
-      .catch((err) => {
-        console.error("the error is ", err.message);
-      });
+    mutation.mutate(newData);
+
+    // axios({
+    //   method: "POST",
+    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
+    //   data: newData,
+    // })
+    //   .then((res) => {
+    //     dispatch(aiResponseSlice.actions.setIsSuccess(res.data));
+    //     console.log("the response is ", res.data);
+    //   })
+    //   .catch((err: any) => {
+    //     dispatch(aiResponseSlice.actions.setIsError(err.message));
+    //     console.error("the error is ", err.message);
+    //   });
   };
 
   return (

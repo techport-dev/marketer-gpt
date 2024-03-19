@@ -31,8 +31,8 @@ const tabsCard = [
 export default function Home() {
   return (
     <section className="container my-5">
-      <div className="flex gap-x-5">
-        <Tabs defaultValue="title" className="w-[500px]">
+      <div className="flex flex-col-reverse gap-y-5 lg:flex-row lg:gap-x-5">
+        <Tabs defaultValue="title" className="w-[500px] mx-auto">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="title">Title</TabsTrigger>
             <TabsTrigger value="comment">Comment</TabsTrigger>
@@ -49,7 +49,7 @@ export default function Home() {
             </TabsContent>
           ))}
         </Tabs>
-        <div className="flex-1 max-h-[80vh] border overflow-y-auto mt-12 rounded">
+        <div className="flex-1 max-h-[80vh] min-h-[50vh] border overflow-y-auto mt-12 rounded mx-auto">
           <Messages />
         </div>
       </div>

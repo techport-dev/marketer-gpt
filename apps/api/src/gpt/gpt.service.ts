@@ -6,6 +6,13 @@ import { Injectable } from '@nestjs/common';
 
 import { type ChatCompletionMessageParam } from 'openai/resources';
 
+interface ConverstationData {
+  postTitle: string;
+  imageDescription?: string;
+  subredditName: string;
+  comments: Array<string>;
+}
+
 @Injectable()
 export class GptService {
   constructor(
@@ -33,6 +40,46 @@ export class GptService {
     return {
       title,
       imageUrl,
+    };
+  }
+
+  generatePrompts(data: ConverstationData) {
+    const { postTitle, imageDescription, subredditName, comments } = data;
+
+    let narrative = `Post Title: "${postTitle}"\n`;
+    narrative += imageDescription
+      ? `Image Description: "${imageDescription}"\n`
+      : '';
+
+    narrative += `Subreddit: r/${subredditName}\nConversation:\n`;
+
+    comments.forEach((comment, index) => {
+      if (index % 2 === 0) {
+        narrative += `User: "${comment}"\n`;
+      } else {
+        narrative += `Post owner replies: "${comment}\n`;
+      }
+    });
+
+    const promptBase =
+      `Given the context of a post titled "${postTitle}" in subreddit r/${subredditName},` +
+      `${imageDescription ? ` with the image described as "${imageDescription}",` : ''}` +
+      ' and the following conversation:\n' +
+      narrative +
+      'Craft a thoughtful response to continue the conversation, particularly addressing the most recent comment.';
+
+    const systemPrompt = promptBase;
+
+    const userPrompt =
+      `Imagine you've posted "${postTitle}" in subreddit r/${subredditName}` +
+      `${imageDescription ? ` with an image described as "${imageDescription}".` : '.'}` +
+      ' The following conversation has unfolded:\n' +
+      narrative +
+      "It's your turn to contribute. Write a reply that effectively continues the engagement with the latest comment, maintaining the context and flow of the discussion.";
+
+    return {
+      systemPrompt,
+      userPrompt,
     };
   }
 
@@ -213,12 +260,13 @@ export class GptService {
         await this.puppeteerService.close();
       } else if (dto.commentType === 'followupCommentReply') {
         const { page } = await this.puppeteerService.launch({
-          headless: false,
+          headless: true,
         });
 
         const { url: commentUrl } = dto;
 
-        const { commentId, postUrl, postId } = this.urlOperation(commentUrl);
+        const { commentId, postUrl, postId, subreddit } =
+          this.urlOperation(commentUrl);
 
         await page.goto(postUrl, {
           waitUntil: 'networkidle2',
@@ -230,7 +278,7 @@ export class GptService {
 
         console.log('title and image url is ', title, imageUrl);
 
-        await this.puppeteerService.timer(3000);
+        await this.puppeteerService.timer(2000);
 
         console.log("now collecting followup comment's parent comment...");
 
@@ -280,9 +328,55 @@ export class GptService {
           { commentId, postId },
         );
 
-        console.log('comments are ', comments);
+        console.log('comments are ', JSON.stringify(comments));
 
         await this.puppeteerService.close();
+
+        const conversationData = {
+          postTitle: title,
+          subredditName: subreddit,
+          comments: comments,
+        };
+
+        const { systemPrompt, userPrompt } =
+          this.generatePrompts(conversationData);
+
+        // console.log('System Prompt:\n', systemPrompt);
+        // console.log('\nUser Prompt:\n', userPrompt);
+
+        const response = await this.openaiService.getChatCompletions({
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt,
+            },
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: imageUrl,
+                    detail: 'high',
+                  },
+                },
+                {
+                  type: 'text',
+                  text: userPrompt,
+                },
+              ],
+            },
+          ],
+          model: 'gpt-4-vision-preview',
+          max_tokens: 2000,
+        });
+
+        return {
+          ...response,
+          msg: 'Suggested followup comment',
+        };
+
+        console.log('response is ', response);
       }
     }
   }

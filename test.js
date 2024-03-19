@@ -1,10 +1,3 @@
-const obj = {
-  headless: true
-}
+const arr = [1,2];
 
-const newObject = {
-  headless: false,
-  ...obj,
-}
-
-console.log(newObject);
+console.log([...arr,3,4])
