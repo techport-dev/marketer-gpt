@@ -2,7 +2,7 @@ import {
   FileWithPreview,
   FileuploadProps,
 } from "@/components/form/common/Fileupload";
-import fileToDataUrl from "@/components/form/helper/fileToDataUrl";
+import { fileToDataUrl } from "@/components/form/helper";
 import { imageSlice } from "@/lib/redux/slices/image";
 import { useDispatch } from "@/lib/redux/store";
 import { FC, useState } from "react";
@@ -31,7 +31,7 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
       "image/jpg": [".jpg"],
       "image/webp": [".webp"],
     },
-    onDrop: (acceptFiles) => {
+    onDrop: async (acceptFiles) => {
       field.onChange(acceptFiles[0]);
 
       const files = acceptFiles.map((file) => {
@@ -39,6 +39,25 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
           preview: URL.createObjectURL(file),
         }) as FileWithPreview;
       });
+
+      // const resizedFiles = await Promise.all(
+      //   acceptFiles.map(async (file) => {
+      //     const buffer = await resizeImage({
+      //       file: await file.arrayBuffer(),
+      //       resizeWidth: 500,
+      //       quality: 80,
+      //       format: "png",
+      //     });
+
+      //     const resizedFile = new File([buffer], file.name, {
+      //       type: "image/png",
+      //     });
+
+      //     return resizedFile;
+      //   })
+      // );
+
+      // console.log("resizedFiles are ", resizedFiles);
 
       dispatch(imageSlice.actions.setFiles(files));
 
@@ -51,7 +70,7 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
           );
         })
         .catch((err: any) => {
-          console.error("Error converting file to data URL.", err.message);
+          console.error("Error converting file to data URL.", err);
         });
     },
     onDropRejected: (rejectedFiles) => {
@@ -59,7 +78,7 @@ const useFileuploadDropzone = ({ field, options }: FileuploadProps) => {
       const error = rejectedFiles[0].errors[0];
 
       toast.error(error.code, {
-        description: error.message,
+        description: error?.message,
       });
     },
   });

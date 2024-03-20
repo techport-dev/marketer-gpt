@@ -159,7 +159,9 @@ export class GptService {
     };
   }
 
-  async getAIResponse(dto: any) {
+  async getAIResponse(dto: any, file: Express.Multer.File) {
+    console.log('file is ', file);
+
     const { base64Image, ...restdto } = dto;
 
     if (dto.generationType === 'Title') {

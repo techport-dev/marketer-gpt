@@ -1,4 +1,4 @@
-const fileToDataUrl = (file: File) => {
+export const fileToDataUrl = (file: File) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -8,5 +8,3 @@ const fileToDataUrl = (file: File) => {
     reader.readAsDataURL(file);
   });
 };
-
-export default fileToDataUrl;

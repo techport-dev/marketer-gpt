@@ -129,13 +129,28 @@ const TitleGenerateForm = () => {
   };
 
   const onSubmit = (values: any) => {
+    const formData = new FormData();
+    const file = imageState?.files[0];
+
     const newData = {
       ...values,
       role: "user",
       generationType: "Title",
-      id: uuidv4(),
+      // id: uuidv4(),
       base64Image: imageState?.referenceImages[0],
     };
+
+    for (let key in newData) {
+      if (newData.hasOwnProperty(key)) {
+        formData.append(key, newData[key]);
+      }
+    }
+
+    if (file) {
+      formData.append("files", file);
+    }
+
+    // console.log("base64Image is ", imageState?.referenceImages[0]);
 
     // setMessageData((prev) => [
     //   ...prev,
@@ -147,17 +162,17 @@ const TitleGenerateForm = () => {
     //   },
     // ]);
 
-    axios({
-      method: "POST",
-      url: "http://localhost:5000/api/v1/gpt/aiResponse",
-      data: newData,
-    })
-      .then((res) => {
-        console.log("the response is ", res.data);
-      })
-      .catch((err) => {
-        console.error("the error is ", err.message);
-      });
+    // axios({
+    //   method: "POST",
+    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
+    //   data: newData,
+    // })
+    //   .then((res) => {
+    //     console.log("the response is ", res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.error("the error is ", err.message);
+    //   });
   };
 
   return (
