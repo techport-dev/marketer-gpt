@@ -1,9 +1,6 @@
 import { OpenaiService } from '@/openai/openai.service';
 import { PuppeteerService } from '@/puppeteer/puppeteer.service';
 import { Injectable } from '@nestjs/common';
-// import fs from 'node:fs/promises';
-// import path from 'path';
-
 import { type ChatCompletionMessageParam } from 'openai/resources';
 
 interface ConverstationData {
@@ -18,6 +15,13 @@ interface CommentReplyPromptsParams {
   imageDescription?: string;
   subredditName: string;
   userComment: string;
+}
+
+interface PostTitlePromptsParams {
+  subredditName: string;
+  avoidenceKeywords: string;
+  lengthLimit: string;
+  imageDescription: string;
 }
 
 @Injectable()
@@ -35,8 +39,6 @@ export class GptService {
       },
     });
 
-    // console.log('title is ', title);
-
     const imageUrl = await this.puppeteerService.getData({
       selector: {
         text: 'img.preview',
@@ -47,6 +49,33 @@ export class GptService {
     return {
       title,
       imageUrl,
+    };
+  }
+
+  generatePostTitlePrompts(data: PostTitlePromptsParams) {
+    const { subredditName, avoidenceKeywords, lengthLimit, imageDescription } =
+      data;
+
+    const systemPrompt = `
+      As an AI simulating a social media marketing expert for the Reddit community, you are tasked with creating titles for a product post in "r/${subredditName}". ${imageDescription ? `The post will include an image described as "${imageDescription}".` : 'The post may include an image.'} Your goal is to generate creative and engaging titles based on the content provided, which may include text, image, or both. Follow these guidelines:
+      
+      - Generate ${lengthLimit} unique titles that resonate with "r/${subredditName}" community culture, capturing the essence and emotion of the content.
+      - Each title should spark curiosity and engagement, reflecting the content's sentiment (e.g., irony, sarcasm, wholesomeness).
+      - Avoid using ${avoidenceKeywords}, and refrain from directly promoting commercial products. Focus on authenticity and relevance to the content.
+      - Titles must be under 100 characters to remain concise and impactful, adhering to Reddit's title length preferences.
+      - Maintain a professional, yet community-friendly tone, avoiding emojis, hashtags, and unnecessary embellishments.
+      - Use insights from any provided image or post context to ensure each title is relevant and compelling.
+      
+      Your objective is to create titles that attract attention and encourage clicks and interaction, showcasing a marketer's ability to communicate concisely and effectively.
+      `.trim();
+
+    const userPrompt = `
+     Generate post title for the following content
+    `;
+
+    return {
+      systemPrompt,
+      userPrompt,
     };
   }
 
@@ -94,7 +123,7 @@ export class GptService {
     const { postTitle, imageDescription, subredditName, userComment } = data;
 
     const systemPrompt = `
-    You are an AI, acting as a Reddit social media marketing expert. You've posted a product titled "${postTitle}" in the subreddit "${subredditName}", and included an image relevant to the post. A user has left a comment: "${userComment}".
+    You are an AI, acting as a Reddit social media marketing expert. You've posted a product titled "${postTitle}" in the subreddit "r/${subredditName}", and included an image relevant to the post. A user has left a comment: "${userComment}".
     ${imageDescription ? `The accompanying image is described as "${imageDescription}".` : ''}
 
     Generate a reply with the following focus:
@@ -131,81 +160,72 @@ export class GptService {
   }
 
   async getAIResponse(dto: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { base64Image, ...restdto } = dto;
-    // console.log('resDto is ', restdto);
 
     if (dto.generationType === 'Title') {
-      const REDDIT_TITLE_GENERATION_SYSTEM_PROMPT = `
-      Imagine you're an active member of the r/${dto.subreddit} community, deeply familiar with its humor, trends, and what resonates with its audience. Your task is to create engaging and creative Reddit titles based on provided content, which could be an image, text, or both. Follow these guidelines:
-      - The title should capture the essence and emotion of the content, fitting seamlessly into r/${dto.subreddit}'s culture.
-      - Tailor the title to engage the community, encouraging clicks and interaction, while reflecting the content's sentiment—be it irony, sarcasm, or wholesomeness.
-      - Avoid using words related to ${dto.avoidenceKeywords} or any commercial products, focusing instead on authenticity and relevance.
-      Create ${dto.lengthLimit} distinct titles, aiming for a tone that seems natural and human-crafted, as if by a subreddit enthusiast.`;
+      const { systemPrompt, userPrompt } =
+        this.generatePostTitlePrompts(restdto);
 
-      let prompts: Array<ChatCompletionMessageParam> = [];
+      const prompts: Array<ChatCompletionMessageParam> = [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
+      ];
 
       if (dto.titleType === 'imageText') {
-        prompts = [
-          {
-            role: dto.role,
-            content: [
-              {
-                type: 'text',
-                text: `Description: ${dto.imageDescription}`,
+        prompts.push({
+          role: dto.role,
+          content: [
+            {
+              type: 'text',
+              text: userPrompt,
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: base64Image,
+                detail: 'high',
               },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: dto.base64Image,
-                  detail: 'high',
-                },
-              },
-            ],
-          },
-        ];
+            },
+          ],
+        });
       } else if (dto.titleType === 'image') {
-        prompts = [
-          {
-            role: dto.role,
-            content: [
-              {
-                type: 'image_url',
-                image_url: {
-                  url: dto.base64Image,
-                  detail: 'high',
-                },
+        prompts.push({
+          role: dto.role,
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url: base64Image,
+                detail: 'high',
               },
-            ],
-          },
-        ];
+            },
+          ],
+        });
       } else if (dto.titleType === 'text') {
-        prompts = [
-          {
-            role: dto.role,
-            content: [
-              {
-                type: 'text',
-                text: dto.imageDescription,
-              },
-            ],
-          },
-        ];
+        prompts.push({
+          role: dto.role,
+          content: [
+            {
+              type: 'text',
+              text: dto.imageDescription,
+            },
+          ],
+        });
       }
 
-      console.log('system propmts is ', REDDIT_TITLE_GENERATION_SYSTEM_PROMPT);
-
-      prompts.unshift({
-        role: 'system',
-        content: REDDIT_TITLE_GENERATION_SYSTEM_PROMPT,
-      });
+      // prompts.unshift({
+      //   role: 'system',
+      //   content: REDDIT_TITLE_GENERATION_SYSTEM_PROMPT,
+      // });
 
       console.log('generating title please wait...');
 
       const response = await this.openaiService.getChatCompletions({
         messages: prompts,
         model: 'gpt-4-vision-preview',
-        max_tokens: 2000,
+        max_tokens: 1000,
       });
 
       console.log('response is ', response);
