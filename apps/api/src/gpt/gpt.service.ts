@@ -1,5 +1,6 @@
 import { OpenaiService } from '@/openai/openai.service';
 import { PuppeteerService } from '@/puppeteer/puppeteer.service';
+import { SharpService } from '@/utils/services/sharp.service';
 import { Injectable } from '@nestjs/common';
 import { type ChatCompletionMessageParam } from 'openai/resources';
 
@@ -29,6 +30,7 @@ export class GptService {
   constructor(
     private readonly openaiService: OpenaiService,
     private readonly puppeteerService: PuppeteerService,
+    private readonly sharpService: SharpService,
   ) {}
 
   async getTitleImage() {
@@ -162,6 +164,17 @@ export class GptService {
   async getAIResponse(dto: any, file: Express.Multer.File) {
     console.log('file is ', file);
     console.log('dto is ', dto);
+
+    const resizeImage = await this.sharpService.resizeImage({
+      file: file.buffer,
+      format: 'png',
+      quality: 80,
+      resizeWidth: 500,
+    });
+
+    console.log('resizeImage is ', resizeImage);
+
+    return resizeImage;
 
     // const { base64Image, ...restdto } = dto;
 
