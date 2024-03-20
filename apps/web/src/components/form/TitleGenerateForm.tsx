@@ -20,6 +20,8 @@ import useSessionStorage from "@/hooks/useSessionStorage";
 import { v4 as uuidv4 } from "uuid";
 import { useSelector } from "@/lib/redux/store";
 import { selectImage } from "@/lib/redux/slices/image/selectors";
+import { useMutation } from "@tanstack/react-query";
+import { generateTitleMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
 
 const formFields = [
   {
@@ -85,6 +87,10 @@ const TitleGenerateForm = () => {
     Array<Record<string, string>>
   >("message", []);
 
+  const mutation = useMutation({
+    mutationFn: generateTitleMutation,
+  });
+
   const imageState = useSelector(selectImage);
 
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
@@ -130,49 +136,21 @@ const TitleGenerateForm = () => {
 
   const onSubmit = (values: any) => {
     const formData = new FormData();
+
     const file = imageState?.files[0];
-
-    const newData = {
-      ...values,
-      role: "user",
-      generationType: "Title",
-      // id: uuidv4(),
-      base64Image: imageState?.referenceImages[0],
-    };
-
-    for (let key in newData) {
-      if (newData.hasOwnProperty(key)) {
-        formData.append(key, newData[key]);
-      }
-    }
 
     if (file) {
       formData.append("files", file);
+      delete values.images;
     }
 
-    // console.log("base64Image is ", imageState?.referenceImages[0]);
+    for (const key in values) {
+      if (values.hasOwnProperty(key)) {
+        formData.append(key, values[key]);
+      }
+    }
 
-    // setMessageData((prev) => [
-    //   ...prev,
-    //   {
-    //     ...values,
-    //     role: "user",
-    //     generationType: "Title",
-    //     id: uuidv4(),
-    //   },
-    // ]);
-
-    // axios({
-    //   method: "POST",
-    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
-    //   data: newData,
-    // })
-    //   .then((res) => {
-    //     console.log("the response is ", res.data);
-    //   })
-    //   .catch((err) => {
-    //     console.error("the error is ", err.message);
-    //   });
+    mutation.mutate(formData);
   };
 
   return (

@@ -161,322 +161,323 @@ export class GptService {
 
   async getAIResponse(dto: any, file: Express.Multer.File) {
     console.log('file is ', file);
+    console.log('dto is ', dto);
 
-    const { base64Image, ...restdto } = dto;
+    // const { base64Image, ...restdto } = dto;
 
-    if (dto.generationType === 'Title') {
-      const { systemPrompt, userPrompt } =
-        this.generatePostTitlePrompts(restdto);
+    // if (dto.generationType === 'Title') {
+    //   const { systemPrompt, userPrompt } =
+    //     this.generatePostTitlePrompts(restdto);
 
-      const prompts: Array<ChatCompletionMessageParam> = [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-      ];
+    //   const prompts: Array<ChatCompletionMessageParam> = [
+    //     {
+    //       role: 'system',
+    //       content: systemPrompt,
+    //     },
+    //   ];
 
-      if (dto.titleType === 'imageText') {
-        prompts.push({
-          role: dto.role,
-          content: [
-            {
-              type: 'text',
-              text: userPrompt,
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: base64Image,
-                detail: 'high',
-              },
-            },
-          ],
-        });
-      } else if (dto.titleType === 'image') {
-        prompts.push({
-          role: dto.role,
-          content: [
-            {
-              type: 'image_url',
-              image_url: {
-                url: base64Image,
-                detail: 'high',
-              },
-            },
-          ],
-        });
-      } else if (dto.titleType === 'text') {
-        prompts.push({
-          role: dto.role,
-          content: [
-            {
-              type: 'text',
-              text: dto.imageDescription,
-            },
-          ],
-        });
-      }
+    //   if (dto.titleType === 'imageText') {
+    //     prompts.push({
+    //       role: dto.role,
+    //       content: [
+    //         {
+    //           type: 'text',
+    //           text: userPrompt,
+    //         },
+    //         {
+    //           type: 'image_url',
+    //           image_url: {
+    //             url: base64Image,
+    //             detail: 'high',
+    //           },
+    //         },
+    //       ],
+    //     });
+    //   } else if (dto.titleType === 'image') {
+    //     prompts.push({
+    //       role: dto.role,
+    //       content: [
+    //         {
+    //           type: 'image_url',
+    //           image_url: {
+    //             url: base64Image,
+    //             detail: 'high',
+    //           },
+    //         },
+    //       ],
+    //     });
+    //   } else if (dto.titleType === 'text') {
+    //     prompts.push({
+    //       role: dto.role,
+    //       content: [
+    //         {
+    //           type: 'text',
+    //           text: dto.imageDescription,
+    //         },
+    //       ],
+    //     });
+    //   }
 
-      // prompts.unshift({
-      //   role: 'system',
-      //   content: REDDIT_TITLE_GENERATION_SYSTEM_PROMPT,
-      // });
+    //   // prompts.unshift({
+    //   //   role: 'system',
+    //   //   content: REDDIT_TITLE_GENERATION_SYSTEM_PROMPT,
+    //   // });
 
-      console.log('generating title please wait...');
+    //   console.log('generating title please wait...');
 
-      const response = await this.openaiService.getChatCompletions({
-        messages: prompts,
-        model: 'gpt-4-vision-preview',
-        max_tokens: 1000,
-      });
+    //   const response = await this.openaiService.getChatCompletions({
+    //     messages: prompts,
+    //     model: 'gpt-4-vision-preview',
+    //     max_tokens: 1000,
+    //   });
 
-      console.log('response is ', response);
+    //   console.log('response is ', response);
 
-      return response;
-    } else {
-      console.log('else dto generation type is ', dto);
-      if (dto.commentType === 'postReply') {
-        const { page } = await this.puppeteerService.launch({
-          headless: false,
-        });
+    //   return response;
+    // } else {
+    //   console.log('else dto generation type is ', dto);
+    //   if (dto.commentType === 'postReply') {
+    //     const { page } = await this.puppeteerService.launch({
+    //       headless: false,
+    //     });
 
-        await page.goto(dto.url, {
-          waitUntil: 'networkidle2',
-        });
+    //     await page.goto(dto.url, {
+    //       waitUntil: 'networkidle2',
+    //     });
 
-        await this.puppeteerService.timer(4000);
+    //     await this.puppeteerService.timer(4000);
 
-        const { title, imageUrl } = await this.getTitleImage();
+    //     const { title, imageUrl } = await this.getTitleImage();
 
-        console.log('title and image url is ', title, imageUrl);
+    //     console.log('title and image url is ', title, imageUrl);
 
-        await this.puppeteerService.close();
+    //     await this.puppeteerService.close();
 
-        console.log('waiting generating image response...');
+    //     console.log('waiting generating image response...');
 
-        // const response = await this.openaiService.getChatCompletions({
-        //   messages: [
-        //     {
-        //       role: 'user',
-        //       content: [
-        //         {
-        //           type: 'text',
-        //           text: "what's this image?",
-        //         },
-        //         {
-        //           type: 'image_url',
-        //           image_url: {
-        //             url: imageUrl,
-        //             detail: 'high',
-        //           },
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   model: 'gpt-4-vision-preview',
-        //   max_tokens: 2000,
-        // });
+    //     // const response = await this.openaiService.getChatCompletions({
+    //     //   messages: [
+    //     //     {
+    //     //       role: 'user',
+    //     //       content: [
+    //     //         {
+    //     //           type: 'text',
+    //     //           text: "what's this image?",
+    //     //         },
+    //     //         {
+    //     //           type: 'image_url',
+    //     //           image_url: {
+    //     //             url: imageUrl,
+    //     //             detail: 'high',
+    //     //           },
+    //     //         },
+    //     //       ],
+    //     //     },
+    //     //   ],
+    //     //   model: 'gpt-4-vision-preview',
+    //     //   max_tokens: 2000,
+    //     // });
 
-        // console.log('GPT image response is ', response);
-      } else if (dto.commentType === 'commentReply') {
-        const { page } = await this.puppeteerService.launch({
-          headless: true,
-        });
+    //     // console.log('GPT image response is ', response);
+    //   } else if (dto.commentType === 'commentReply') {
+    //     const { page } = await this.puppeteerService.launch({
+    //       headless: true,
+    //     });
 
-        const commentUrl = dto.url;
-        const { postUrl, commentId, subreddit } = this.urlOperation(commentUrl);
+    //     const commentUrl = dto.url;
+    //     const { postUrl, commentId, subreddit } = this.urlOperation(commentUrl);
 
-        await page.goto(postUrl, {
-          waitUntil: 'networkidle2',
-        });
+    //     await page.goto(postUrl, {
+    //       waitUntil: 'networkidle2',
+    //     });
 
-        await this.puppeteerService.timer(3000);
+    //     await this.puppeteerService.timer(3000);
 
-        const { title, imageUrl } = await this.getTitleImage();
+    //     const { title, imageUrl } = await this.getTitleImage();
 
-        console.log('title and image url is ', title, imageUrl);
+    //     console.log('title and image url is ', title, imageUrl);
 
-        await page.goto(commentUrl, {
-          waitUntil: 'networkidle2',
-        });
+    //     await page.goto(commentUrl, {
+    //       waitUntil: 'networkidle2',
+    //     });
 
-        await this.puppeteerService.timer(3000);
+    //     await this.puppeteerService.timer(3000);
 
-        const commentText = await this.puppeteerService.getData({
-          selector: {
-            text: `#thing_t1_${commentId} div.entry div.md`,
-            type: 'text',
-          },
-        });
+    //     const commentText = await this.puppeteerService.getData({
+    //       selector: {
+    //         text: `#thing_t1_${commentId} div.entry div.md`,
+    //         type: 'text',
+    //       },
+    //     });
 
-        console.log('comment text is ', commentText);
+    //     console.log('comment text is ', commentText);
 
-        await this.puppeteerService.close();
+    //     await this.puppeteerService.close();
 
-        const commentReplyData = {
-          postTitle: title,
-          imageDescription: '',
-          subredditName: subreddit,
-          userComment: commentText,
-        };
+    //     const commentReplyData = {
+    //       postTitle: title,
+    //       imageDescription: '',
+    //       subredditName: subreddit,
+    //       userComment: commentText,
+    //     };
 
-        const { systemPrompt, userPrompt } =
-          this.generateCommentReplyPrompts(commentReplyData);
+    //     const { systemPrompt, userPrompt } =
+    //       this.generateCommentReplyPrompts(commentReplyData);
 
-        const response = await this.openaiService.getChatCompletions({
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt,
-            },
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: imageUrl,
-                    detail: 'high',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: userPrompt,
-                },
-              ],
-            },
-          ],
-          model: 'gpt-4-vision-preview',
-          max_tokens: 2000,
-        });
+    //     const response = await this.openaiService.getChatCompletions({
+    //       messages: [
+    //         {
+    //           role: 'system',
+    //           content: systemPrompt,
+    //         },
+    //         {
+    //           role: 'user',
+    //           content: [
+    //             {
+    //               type: 'image_url',
+    //               image_url: {
+    //                 url: imageUrl,
+    //                 detail: 'high',
+    //               },
+    //             },
+    //             {
+    //               type: 'text',
+    //               text: userPrompt,
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //       model: 'gpt-4-vision-preview',
+    //       max_tokens: 2000,
+    //     });
 
-        return {
-          ...response,
-          msg: 'Suggested commentReply comment',
-        };
+    //     return {
+    //       ...response,
+    //       msg: 'Suggested commentReply comment',
+    //     };
 
-        // end of commentReply
-      } else if (dto.commentType === 'followupCommentReply') {
-        // start of followupCommentReply
-        const { page } = await this.puppeteerService.launch({
-          headless: true,
-        });
+    //     // end of commentReply
+    //   } else if (dto.commentType === 'followupCommentReply') {
+    //     // start of followupCommentReply
+    //     const { page } = await this.puppeteerService.launch({
+    //       headless: true,
+    //     });
 
-        const { url: commentUrl } = dto;
+    //     const { url: commentUrl } = dto;
 
-        const { commentId, postUrl, postId, subreddit } =
-          this.urlOperation(commentUrl);
+    //     const { commentId, postUrl, postId, subreddit } =
+    //       this.urlOperation(commentUrl);
 
-        await page.goto(postUrl, {
-          waitUntil: 'networkidle2',
-        });
+    //     await page.goto(postUrl, {
+    //       waitUntil: 'networkidle2',
+    //     });
 
-        await this.puppeteerService.timer(3000);
+    //     await this.puppeteerService.timer(3000);
 
-        const { title, imageUrl } = await this.getTitleImage();
+    //     const { title, imageUrl } = await this.getTitleImage();
 
-        console.log('title and image url is ', title, imageUrl);
+    //     console.log('title and image url is ', title, imageUrl);
 
-        await this.puppeteerService.timer(2000);
+    //     await this.puppeteerService.timer(2000);
 
-        console.log("now collecting followup comment's parent comment...");
+    //     console.log("now collecting followup comment's parent comment...");
 
-        const comments = await page.evaluate(
-          ({ commentId, postId }) => {
-            const replyCommentId = `thing_t1_${commentId}`; // Example ID, adjust as necessary
-            const replyComment = document.getElementById(replyCommentId);
+    //     const comments = await page.evaluate(
+    //       ({ commentId, postId }) => {
+    //         const replyCommentId = `thing_t1_${commentId}`; // Example ID, adjust as necessary
+    //         const replyComment = document.getElementById(replyCommentId);
 
-            const siteTableId = `siteTable_t3_${postId}`;
-            let comments = [];
-            let currentElement = replyComment;
+    //         const siteTableId = `siteTable_t3_${postId}`;
+    //         let comments = [];
+    //         let currentElement = replyComment;
 
-            while (currentElement && currentElement.id !== siteTableId) {
-              if (
-                (currentElement as HTMLElement).className.includes('listing') ||
-                (currentElement as HTMLElement).className.includes('child')
-              ) {
-                currentElement = currentElement.parentNode as HTMLElement;
-                continue;
-              }
+    //         while (currentElement && currentElement.id !== siteTableId) {
+    //           if (
+    //             (currentElement as HTMLElement).className.includes('listing') ||
+    //             (currentElement as HTMLElement).className.includes('child')
+    //           ) {
+    //             currentElement = currentElement.parentNode as HTMLElement;
+    //             continue;
+    //           }
 
-              comments.push(
-                currentElement.querySelector<HTMLElement>('div.entry div.md')
-                  ?.innerText,
-              );
+    //           comments.push(
+    //             currentElement.querySelector<HTMLElement>('div.entry div.md')
+    //               ?.innerText,
+    //           );
 
-              currentElement = currentElement.parentNode as HTMLElement;
+    //           currentElement = currentElement.parentNode as HTMLElement;
 
-              // If you reach the "body" or "html" element, you can stop, or adjust the condition as needed
-              if (
-                (currentElement as HTMLElement).tagName === 'BODY' ||
-                (currentElement as HTMLElement).tagName === 'HTML'
-              ) {
-                break;
-              }
+    //           // If you reach the "body" or "html" element, you can stop, or adjust the condition as needed
+    //           if (
+    //             (currentElement as HTMLElement).tagName === 'BODY' ||
+    //             (currentElement as HTMLElement).tagName === 'HTML'
+    //           ) {
+    //             break;
+    //           }
 
-              if (
-                (currentElement as HTMLElement).id === `siteTable_t3_${postId}`
-              ) {
-                break;
-              }
-            }
-            comments = [...new Set(comments)].reverse();
+    //           if (
+    //             (currentElement as HTMLElement).id === `siteTable_t3_${postId}`
+    //           ) {
+    //             break;
+    //           }
+    //         }
+    //         comments = [...new Set(comments)].reverse();
 
-            return comments;
-          },
-          { commentId, postId },
-        );
+    //         return comments;
+    //       },
+    //       { commentId, postId },
+    //     );
 
-        console.log('comments are ', JSON.stringify(comments));
+    //     console.log('comments are ', JSON.stringify(comments));
 
-        await this.puppeteerService.close();
+    //     await this.puppeteerService.close();
 
-        const conversationData = {
-          postTitle: title,
-          subredditName: subreddit,
-          comments: comments,
-        };
+    //     const conversationData = {
+    //       postTitle: title,
+    //       subredditName: subreddit,
+    //       comments: comments,
+    //     };
 
-        const { systemPrompt, userPrompt } =
-          this.generateFollowupPrompts(conversationData);
+    //     const { systemPrompt, userPrompt } =
+    //       this.generateFollowupPrompts(conversationData);
 
-        // console.log('System Prompt:\n', systemPrompt);
-        // console.log('\nUser Prompt:\n', userPrompt);
+    //     // console.log('System Prompt:\n', systemPrompt);
+    //     // console.log('\nUser Prompt:\n', userPrompt);
 
-        const response = await this.openaiService.getChatCompletions({
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt,
-            },
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: imageUrl,
-                    detail: 'high',
-                  },
-                },
-                {
-                  type: 'text',
-                  text: userPrompt,
-                },
-              ],
-            },
-          ],
-          model: 'gpt-4-vision-preview',
-          max_tokens: 2000,
-        });
+    //     const response = await this.openaiService.getChatCompletions({
+    //       messages: [
+    //         {
+    //           role: 'system',
+    //           content: systemPrompt,
+    //         },
+    //         {
+    //           role: 'user',
+    //           content: [
+    //             {
+    //               type: 'image_url',
+    //               image_url: {
+    //                 url: imageUrl,
+    //                 detail: 'high',
+    //               },
+    //             },
+    //             {
+    //               type: 'text',
+    //               text: userPrompt,
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //       model: 'gpt-4-vision-preview',
+    //       max_tokens: 2000,
+    //     });
 
-        return {
-          ...response,
-          msg: 'Suggested followup comment',
-        };
+    //     return {
+    //       ...response,
+    //       msg: 'Suggested followup comment',
+    //     };
 
-        console.log('response is ', response);
-      }
-    }
+    //     console.log('response is ', response);
+    //   }
+    // }
   }
 }
