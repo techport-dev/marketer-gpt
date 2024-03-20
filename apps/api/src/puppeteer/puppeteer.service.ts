@@ -50,9 +50,12 @@ export class PuppeteerService {
   async getData({ selector }: GetDataParamsType) {
     return await this.page.evaluate((selector) => {
       if (selector.type === 'image') {
-        const data = document
-          .querySelector<HTMLImageElement>(selector.text)
-          ?.src?.trim();
+        const data =
+          document
+            .querySelector<HTMLImageElement>(selector.text)
+            ?.src?.trim() ??
+          document.querySelector<HTMLAnchorElement>('.thumbnail')?.href.trim();
+
         return data;
       }
 

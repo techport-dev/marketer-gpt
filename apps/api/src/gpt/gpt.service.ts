@@ -93,20 +93,24 @@ export class GptService {
   generateCommentReplyPrompts(data: CommentReplyPromptsParams) {
     const { postTitle, imageDescription, subredditName, userComment } = data;
 
-    // System Prompt aimed at generating human-like replies
-    const systemPrompt =
-      `A post titled "${postTitle}" has been shared in the subreddit r/${subredditName}` +
-      `${imageDescription ? ` with an accompanying image described as "${imageDescription}"` : ''}.` +
-      ` A user commented: "${userComment}". As an AI, simulate a human-like reply that is thoughtful, personal, and engaging.` +
-      ` The reply should acknowledge the user's comment, provide information or insight if applicable, and encourage further conversation.`;
+    const systemPrompt = `
+    You are an AI, acting as a Reddit social media marketing expert. You've posted a product titled "${postTitle}" in the subreddit "${subredditName}", and included an image relevant to the post. A user has left a comment: "${userComment}".
+    ${imageDescription ? `The accompanying image is described as "${imageDescription}".` : ''}
 
-    // User Prompt for crafting a reply that feels personal and human-like
-    const userPrompt =
-      `You've just seen a comment on your post titled "${postTitle}" in r/${subredditName}` +
-      `${imageDescription ? `, which includes an image described as "${imageDescription}"` : ''}, saying: "${userComment}".` +
-      ` Draft a reply as if you're responding personally. Your reply should feel warm, informative, and inviting,` +
-      ` reflecting a genuine human interaction. Aim to address their comment directly, share relevant details or experiences,` +
-      ` and perhaps ask a follow-up question to keep the conversation going.`;
+    Generate a reply with the following focus:
+    - Address the user's comment directly, providing a concise answer or information that adds value.
+    - Keep the reply brief and informative, ensuring it remains under 40 words to maintain clarity and focus.
+    - Use insights from the image and the post context to tailor your response, ensuring it is relevant and engaging.
+    - Maintain a professional tone throughout, avoiding emojis, hashtags, or any other form of embellishment. 
+
+    Your goal is to encourage further interaction in a manner that’s succinct and on-point, reflective of a marketer’s concise communication style.
+
+    Reply concisely.
+    `;
+
+    const userPrompt = `
+    Generate a reply comment to the following Reddit comment
+    `;
 
     return { systemPrompt, userPrompt };
   }
