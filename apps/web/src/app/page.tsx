@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <section className="container my-5">
       <div className="flex flex-col-reverse gap-y-5 lg:flex-row lg:gap-x-5">
-        <Tabs defaultValue="title" className="w-[500px] mx-auto">
+        <Tabs defaultValue="title" className="w-[600px] mx-auto">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="title">Title</TabsTrigger>
             <TabsTrigger value="comment">Comment</TabsTrigger>

@@ -16,8 +16,6 @@ const aiResponseApi = {
     return response.data;
   },
   generateTitleMutation: async (formData: FormData) => {
-    console.log("formData is ", formData);
-
     const response = await baseApi({
       url: "/gpt/aiResponse/title",
       method: "POST",
@@ -29,6 +27,19 @@ const aiResponseApi = {
 
     return response.data;
   },
+  generateCommentMutation: async (data: any) => {
+    const response = await baseApi({
+      url: "/gpt/aiResponse/comment",
+      method: "POST",
+      data: data,
+    });
+
+    return response.data;
+  },
 };
 
-export const { aiResponseMutation, generateTitleMutation } = aiResponseApi;
+export const {
+  aiResponseMutation,
+  generateTitleMutation,
+  generateCommentMutation,
+} = aiResponseApi;

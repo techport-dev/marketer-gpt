@@ -17,11 +17,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import commentGenerateFormSchema from "./schemas/commentGenerateFormSchema";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { useDispatch } from "@/lib/redux/store";
 import { aiResponseSlice } from "@/lib/redux/slices/aiResponse";
 import { useMutation } from "@tanstack/react-query";
-import { aiResponseMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
+import { generateCommentMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
 
 const formFields = [
   {
@@ -69,7 +68,7 @@ const CommentGenerateForm = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: aiResponseMutation,
+    mutationFn: generateCommentMutation,
     onMutate: () => {
       dispatch(aiResponseSlice.actions.setIsLoading());
     },
@@ -88,30 +87,7 @@ const CommentGenerateForm = () => {
   const onSubmit = (values: z.infer<typeof commentGenerateFormSchema>) => {
     console.log("onSubmit values are ", values);
 
-    const newData = {
-      ...values,
-      role: "user",
-      generationType: "Comment",
-      id: uuidv4(),
-    };
-
-    console.log("newData are ", newData);
-
-    mutation.mutate(newData);
-
-    // axios({
-    //   method: "POST",
-    //   url: "http://localhost:5000/api/v1/gpt/aiResponse",
-    //   data: newData,
-    // })
-    //   .then((res) => {
-    //     dispatch(aiResponseSlice.actions.setIsSuccess(res.data));
-    //     console.log("the response is ", res.data);
-    //   })
-    //   .catch((err: any) => {
-    //     dispatch(aiResponseSlice.actions.setIsError(err.message));
-    //     console.error("the error is ", err.message);
-    //   });
+    mutation.mutate(values);
   };
 
   return (

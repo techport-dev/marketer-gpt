@@ -15,13 +15,12 @@ import {
 } from "@/components/ui/form";
 import FormRender, { type FormType } from "./common/FormRender";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import useSessionStorage from "@/hooks/useSessionStorage";
-import { v4 as uuidv4 } from "uuid";
-import { useSelector } from "@/lib/redux/store";
+import { useDispatch, useSelector } from "@/lib/redux/store";
 import { selectImage } from "@/lib/redux/slices/image/selectors";
 import { useMutation } from "@tanstack/react-query";
 import { generateTitleMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
+import { aiResponseSlice } from "@/lib/redux/slices/aiResponse";
 
 const formFields = [
   {
@@ -87,8 +86,21 @@ const TitleGenerateForm = () => {
     Array<Record<string, string>>
   >("message", []);
 
+  const dispatch = useDispatch();
+
   const mutation = useMutation({
     mutationFn: generateTitleMutation,
+    onMutate: () => {
+      dispatch(aiResponseSlice.actions.setIsLoading());
+    },
+    onSuccess: (data) => {
+      console.log("the data is ", data);
+      dispatch(aiResponseSlice.actions.setIsSuccess(data));
+    },
+    onError: (error) => {
+      console.error("the error is ", error.message);
+      dispatch(aiResponseSlice.actions.setIsError(error.message));
+    },
   });
 
   const imageState = useSelector(selectImage);

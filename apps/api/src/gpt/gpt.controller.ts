@@ -33,11 +33,16 @@ export class GptController {
 
   @UseInterceptors(FileInterceptor('files', multerOptions))
   @Post('aiResponse/title')
-  async aiResponse(
+  async aiResponseTitle(
     @Body() dto: any,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.gptService.getAIResponse(dto, file);
+    return this.gptService.titleGenerate(dto, file);
+  }
+
+  @Post('aiResponse/comment')
+  async aiResponseComment(@Body() dto: any) {
+    return this.gptService.commentGenerate(dto);
   }
 
   // @Post('/comment/aiResponse')

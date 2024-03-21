@@ -28,14 +28,14 @@ const MessageItem: FC<MessageItemProps> = ({ className, message, status }) => {
       );
       break;
 
-    case "Typing":
-      content = (
-        <div className="prose max-w-full break-words relative">
-          <Markdown>{message?.content || ""}</Markdown>
-          <span className="blinking-cursor">▋</span>
-        </div>
-      );
-      break;
+    // case "Typing":
+    //   content = (
+    //     <div className="prose max-w-full break-words relative">
+    //       <Markdown>{message?.content || ""}</Markdown>
+    //       <span className="blinking-cursor">▋</span>
+    //     </div>
+    //   );
+    //   break;
 
     case "Finished":
       content = (
