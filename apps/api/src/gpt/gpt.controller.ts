@@ -13,7 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 const multerOptions: MulterOptions = {
   fileFilter: (req, file, callback) => {
-    if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+    if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
       callback(null, true);
     } else {
       callback(

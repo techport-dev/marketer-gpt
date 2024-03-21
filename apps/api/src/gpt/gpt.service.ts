@@ -179,6 +179,13 @@ export class GptService {
   }
 
   async titleGenerate(dto: any, file: Express.Multer.File) {
+    // let base64Image = '';
+
+    // console.log('file mimetype if ', file.mimetype);
+
+    // if (file.mimetype === 'image/webp') {
+    //   base64Image = file.buffer.toString('base64');
+    // } else {
     const resizeImage = await this.sharpService.resizeImage({
       file: file.buffer,
       format: 'png',
@@ -257,6 +264,7 @@ export class GptService {
       const { page } = await this.puppeteerService.launch({
         headless: true,
       });
+
       await page.goto(url, {
         waitUntil: 'networkidle2',
       });
