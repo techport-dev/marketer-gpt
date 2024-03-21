@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/providers/ReduxProvider";
 import TanstackProvider from "@/lib/tanstackQuery/TanstackProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,17 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReduxProvider>
-          <TanstackProvider>{children}</TanstackProvider>
+          <TanstackProvider>
+            {children}
+            <Toaster
+              richColors
+              closeButton
+              toastOptions={{
+                className: "class",
+              }}
+              duration={3000}
+            />
+          </TanstackProvider>
         </ReduxProvider>
       </body>
     </html>

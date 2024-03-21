@@ -16,11 +16,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import commentGenerateFormSchema from "./schemas/commentGenerateFormSchema";
-import { v4 as uuidv4 } from "uuid";
 import { useDispatch } from "@/lib/redux/store";
 import { aiResponseSlice } from "@/lib/redux/slices/aiResponse";
 import { useMutation } from "@tanstack/react-query";
 import { generateCommentMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
+import { toast } from "sonner";
+import { type AxiosError } from "axios";
+import { errorFn } from "@/lib/utils";
 
 const formFields = [
   {
@@ -85,9 +87,13 @@ const CommentGenerateForm = () => {
   const dispatch = useDispatch();
 
   const onSubmit = (values: z.infer<typeof commentGenerateFormSchema>) => {
-    console.log("onSubmit values are ", values);
-
-    mutation.mutate(values);
+    toast.promise(mutation.mutateAsync(values), {
+      loading: "Generating Comment...",
+      success: "Comment Generated Successfully",
+      error: (err: AxiosError) => {
+        return errorFn(err);
+      },
+    });
   };
 
   return (

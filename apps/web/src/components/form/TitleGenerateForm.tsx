@@ -21,6 +21,9 @@ import { selectImage } from "@/lib/redux/slices/image/selectors";
 import { useMutation } from "@tanstack/react-query";
 import { generateTitleMutation } from "@/lib/tanstackQuery/api/aiResponseApi";
 import { aiResponseSlice } from "@/lib/redux/slices/aiResponse";
+import { AxiosError } from "axios";
+import { errorFn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const formFields = [
   {
@@ -162,7 +165,13 @@ const TitleGenerateForm = () => {
       }
     }
 
-    mutation.mutate(formData);
+    toast.promise(mutation.mutateAsync(formData), {
+      loading: "Generating Title...",
+      success: "Title Generated Successfully",
+      error: (err: AxiosError) => {
+        return errorFn(err);
+      },
+    });
   };
 
   return (

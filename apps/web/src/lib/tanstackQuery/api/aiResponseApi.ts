@@ -7,14 +7,6 @@ type AiResponseType = {
 };
 
 const aiResponseApi = {
-  aiResponseMutation: async (data: any): Promise<AiResponseType> => {
-    const response = await baseApi({
-      url: "/gpt/aiResponse",
-      method: "POST",
-      data: data,
-    });
-    return response.data;
-  },
   generateTitleMutation: async (formData: FormData) => {
     const response = await baseApi({
       url: "/gpt/aiResponse/title",
@@ -38,8 +30,4 @@ const aiResponseApi = {
   },
 };
 
-export const {
-  aiResponseMutation,
-  generateTitleMutation,
-  generateCommentMutation,
-} = aiResponseApi;
+export const { generateTitleMutation, generateCommentMutation } = aiResponseApi;
