@@ -179,6 +179,8 @@ export class GptService {
   }
 
   async titleGenerate(dto: any, file: Express.Multer.File) {
+    console.log('dto is ', dto);
+
     // let base64Image = '';
 
     // console.log('file mimetype if ', file.mimetype);
@@ -186,6 +188,7 @@ export class GptService {
     // if (file.mimetype === 'image/webp') {
     //   base64Image = file.buffer.toString('base64');
     // } else {
+
     const resizeImage = await this.sharpService.resizeImage({
       file: file.buffer,
       format: 'png',
@@ -195,12 +198,16 @@ export class GptService {
 
     const base64Image = resizeImage.toString('base64');
 
-    const { systemPrompt, userPrompt } = this.generatePostTitlePrompts(dto);
+    // const { systemPrompt, userPrompt } = this.generatePostTitlePrompts(dto);
+
+    const userPrompt = `
+      Generate post title for the following content
+   `;
 
     const prompts: Array<ChatCompletionMessageParam> = [
       {
         role: 'system',
-        content: systemPrompt,
+        content: dto.systemPrompt,
       },
     ];
 
@@ -260,6 +267,7 @@ export class GptService {
 
   async commentGenerate(dto: any) {
     const { commentType, url } = dto;
+
     if (commentType === 'postReply') {
       const { page } = await this.puppeteerService.launch({
         headless: true,
@@ -276,7 +284,12 @@ export class GptService {
 
       await this.puppeteerService.close();
 
-      const { systemPrompt, userPrompt } = this.generatePostReplyPrompts(dto);
+      // const { systemPrompt, userPrompt } = this.generatePostReplyPrompts(dto);
+
+      const systemPrompt = dto.systemPrompt;
+      const userPrompt = `
+      Generate a post reply comment to the following Reddit post
+      `;
 
       const response = await this.openaiService.getChatCompletions({
         messages: [
@@ -351,8 +364,13 @@ export class GptService {
         userComment: commentText,
       };
 
-      const { systemPrompt, userPrompt } =
-        this.generateCommentReplyPrompts(commentReplyData);
+      const systemPrompt = dto.systemPrompt;
+      const userPrompt = `
+      Generate a reply comment to the following Reddit comment
+      `;
+
+      // const { systemPrompt, userPrompt } =
+      //   this.generateCommentReplyPrompts(commentReplyData);
 
       const response = await this.openaiService.getChatCompletions({
         messages: [
@@ -466,8 +484,13 @@ export class GptService {
         comments: comments,
       };
 
-      const { systemPrompt, userPrompt } =
-        this.generateFollowupPrompts(conversationData);
+      // const { systemPrompt, userPrompt } =
+      //   this.generateFollowupPrompts(conversationData);
+
+      const systemPrompt = dto.systemPrompt;
+      const userPrompt = `
+      Generate follow up reply comment to the following Reddit post
+      `;
 
       // console.log('System Prompt:\n', systemPrompt);
       // console.log('\nUser Prompt:\n', userPrompt);

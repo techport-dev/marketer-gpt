@@ -8,9 +8,9 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 const titleGenerateFormSchema = z.object({
-  titleType: z.string().trim().min(1, {
-    message: "TitleType is Required",
-  }),
+  // titleType: z.string().trim().min(1, {
+  //   message: "TitleType is Required",
+  // }),
   images: z
     .instanceof(File)
     .refine((file) => {
@@ -21,24 +21,27 @@ const titleGenerateFormSchema = z.object({
       "Invalid file type"
     )
     .optional(),
-  imageDescription: z
-    .string()
-    .trim()
-    .min(1, {
-      message: "Imagedesc is Required",
-    })
-    .optional(),
-  subreddit: z.string().trim().min(1, {
-    message: "Subreddit is Required",
-  }),
-  lengthLimit: z.string().trim().min(1, {
-    message: "Length Limit is Required",
-  }),
-  avoidenceKeywords: z.string().trim().min(1, {
-    message: "Avoidence Keywords is Required",
-  }),
-  reference: z.string().trim().min(1, {
-    message: "Reference is Required",
+  // imageDescription: z
+  //   .string()
+  //   .trim()
+  //   .min(1, {
+  //     message: "Imagedesc is Required",
+  //   })
+  //   .optional(),
+  // subreddit: z.string().trim().min(1, {
+  //   message: "Subreddit is Required",
+  // }),
+  // lengthLimit: z.string().trim().min(1, {
+  //   message: "Length Limit is Required",
+  // }),
+  // avoidenceKeywords: z.string().trim().min(1, {
+  //   message: "Avoidence Keywords is Required",
+  // }),
+  // reference: z.string().trim().min(1, {
+  //   message: "Reference is Required",
+  // }),
+  systemPrompt: z.string().trim().min(1, {
+    message: "System Prompts is Required",
   }),
 });
 

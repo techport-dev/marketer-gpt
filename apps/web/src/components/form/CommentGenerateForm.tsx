@@ -26,6 +26,12 @@ import { errorFn } from "@/lib/utils";
 
 const formFields = [
   {
+    key: 8,
+    name: "systemPrompt",
+    label: "System Prompts",
+    type: "textarea",
+  },
+  {
     key: 1,
     name: "commentType",
     label: "Comment Type",
@@ -55,12 +61,12 @@ const formFields = [
     label: "Url",
     type: "input",
   },
-  {
-    key: 3,
-    name: "wordLength",
-    label: "Word Length",
-    type: "input",
-  },
+  // {
+  //   key: 3,
+  //   name: "wordLength",
+  //   label: "Word Length",
+  //   type: "input",
+  // },
 ];
 
 type FormFieldsType = "commentType" | "url";
@@ -71,7 +77,8 @@ const CommentGenerateForm = () => {
     defaultValues: {
       commentType: "postReply",
       url: "",
-      wordLength: "",
+      // wordLength: "",
+      systemPrompt: "",
     },
     mode: "onChange",
   });

@@ -14,9 +14,6 @@ const Messages = () => {
   if (isLoading) {
     content = (
       <>
-        {data.map((message, index) => (
-          <MessageItem key={index} message={message} status="Finished" />
-        ))}
         <MessageItem
           message={{
             msg: "Generating response...",
@@ -25,11 +22,15 @@ const Messages = () => {
         />
       </>
     );
-  } else if (!isLoading && !isError && data.length > 0) {
-    content = data.map((message, index) => (
-      <MessageItem key={index} message={message} status="Finished" />
-    ));
-  } else if (!isLoading && !isError && data.length === 0) {
+  } else if (!isLoading && !isError && data && data.content) {
+    // Assign JSX to content properly
+    content = <MessageItem message={data} status="Finished" />;
+  } else if (
+    !isLoading &&
+    !isError &&
+    (data === null || data?.content === "")
+  ) {
+    // Adjusted this condition to check for data being null or data.content being an empty string
     content = <EmptyMessage />;
   } else if (!isLoading && isError) {
     content = <div>Something went wrong</div>;

@@ -26,17 +26,23 @@ import { errorFn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const formFields = [
+  // {
+  //   key: 1,
+  //   name: "titleType",
+  //   label: "Title Type",
+  //   type: "select",
+  //   options: [
+  //     { key: 1, value: "imageText", label: "Image & Text" },
+  //     { key: 2, value: "image", label: "Image" },
+  //     { key: 3, value: "text", label: "Text" },
+  //   ],
+  //   defaultValue: "imageText",
+  // },
   {
-    key: 1,
-    name: "titleType",
-    label: "Title Type",
-    type: "select",
-    options: [
-      { key: 1, value: "imageText", label: "Image & Text" },
-      { key: 2, value: "image", label: "Image" },
-      { key: 3, value: "text", label: "Text" },
-    ],
-    defaultValue: "imageText",
+    key: 8,
+    name: "systemPrompt",
+    label: "System Prompts",
+    type: "textarea",
   },
   {
     key: 2,
@@ -44,50 +50,51 @@ const formFields = [
     label: "Upload Image",
     type: "file",
   },
-  {
-    key: 3,
-    name: "imageDescription",
-    label: "Image Description",
-    type: "textarea",
-  },
-  {
-    key: 4,
-    name: "subreddit",
-    label: "Subreddit",
-    type: "input",
-  },
-  {
-    key: 5,
-    name: "lengthLimit",
-    label: "Length Limit",
-    type: "input",
-  },
-  {
-    key: 6,
-    name: "avoidenceKeywords",
-    label: "Avoidence Keywords",
-    type: "input",
-  },
-  {
-    key: 7,
-    name: "reference",
-    label: "Reference",
-    type: "input",
-  },
+  // {
+  //   key: 3,
+  //   name: "imageDescription",
+  //   label: "Image Description",
+  //   type: "textarea",
+  // },
+  // {
+  //   key: 4,
+  //   name: "subreddit",
+  //   label: "Subreddit",
+  //   type: "input",
+  // },
+  // {
+  //   key: 5,
+  //   name: "lengthLimit",
+  //   label: "Length Limit",
+  //   type: "input",
+  // },
+  // {
+  //   key: 6,
+  //   name: "avoidenceKeywords",
+  //   label: "Avoidence Keywords",
+  //   type: "input",
+  // },
+  // {
+  //   key: 7,
+  //   name: "reference",
+  //   label: "Reference",
+  //   type: "input",
+  // },
 ];
 
 export type FormFieldsType =
   | "images"
-  | "imageDescription"
-  | "subreddit"
-  | "lengthLimit"
-  | "avoidenceKeywords"
-  | "reference";
+  // | "imageDescription"
+  // | "subreddit"
+  // | "lengthLimit"
+  // | "avoidenceKeywords"
+  // | "reference";
+  | "systemPrompt";
 
 const TitleGenerateForm = () => {
-  const [messageData, setMessageData] = useSessionStorage<
-    Array<Record<string, string>>
-  >("message", []);
+  // const [messageData, setMessageData] = useSessionStorage<
+  //   Array<Record<string, string>>
+  // >("message", []);
 
   const dispatch = useDispatch();
 
@@ -111,43 +118,44 @@ const TitleGenerateForm = () => {
   const form = useForm<z.infer<typeof titleGenerateFormSchema>>({
     resolver: zodResolver(titleGenerateFormSchema),
     defaultValues: {
-      titleType: "imageText",
+      // titleType: "imageText",
       images: new File([], ""),
-      imageDescription: "",
-      subreddit: "",
-      lengthLimit: "",
-      avoidenceKeywords: "",
-      reference: "",
+      // imageDescription: "",
+      // subreddit: "",
+      // lengthLimit: "",
+      // avoidenceKeywords: "",
+      // reference: "",
+      systemPrompt: "",
     },
     mode: "onChange",
   });
 
-  const titleType = form.getValues("titleType");
+  // const titleType = form.getValues("titleType");
 
-  useEffect(() => {
-    const fieldsToUnregister =
-      titleType === "image"
-        ? ["imageDescription"]
-        : titleType === "text"
-          ? ["images"]
-          : [];
+  // useEffect(() => {
+  //   const fieldsToUnregister =
+  //     titleType === "image"
+  //       ? ["imageDescription"]
+  //       : titleType === "text"
+  //         ? ["images"]
+  //         : [];
 
-    fieldsToUnregister.forEach((fieldName) => {
-      form.unregister(fieldName as FormFieldsType);
-    });
-  }, [form, titleType]);
+  //   fieldsToUnregister.forEach((fieldName) => {
+  //     form.unregister(fieldName as FormFieldsType);
+  //   });
+  // }, [form, titleType]);
 
-  const filterFormFields = (formField: any) => {
-    // Directly return the opposite of the condition you're checking for.
-    // This makes the function more concise and easier to understand.
-    if (
-      (titleType === "image" && formField.name === "imageDescription") ||
-      (titleType === "text" && formField.name === "images")
-    ) {
-      return false;
-    }
-    return true;
-  };
+  // const filterFormFields = (formField: any) => {
+  //   // Directly return the opposite of the condition you're checking for.
+  //   // This makes the function more concise and easier to understand.
+  //   if (
+  //     (titleType === "image" && formField.name === "imageDescription") ||
+  //     (titleType === "text" && formField.name === "images")
+  //   ) {
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   const onSubmit = (values: any) => {
     const formData = new FormData();
@@ -178,7 +186,7 @@ const TitleGenerateForm = () => {
     <FormProvider {...form}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {formFields.filter(filterFormFields).map((formField) => (
+          {formFields.map((formField) => (
             <FormField
               key={formField.key}
               control={form.control}
@@ -193,8 +201,8 @@ const TitleGenerateForm = () => {
                       <FormRender
                         type={formField.type as FormType}
                         field={field}
-                        options={formField.options}
-                        defaultValue={formField.defaultValue}
+                        // options={formField.options}
+                        // defaultValue={formField.defaultValue}
                       />
                     </FormControl>
                     <FormMessage />

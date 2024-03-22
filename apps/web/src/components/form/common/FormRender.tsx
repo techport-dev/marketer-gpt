@@ -39,7 +39,12 @@ const FormRender: FC<FormRenderProps> = ({
     case "input":
       return <Input {...field} />;
     case "textarea":
-      return <Textarea {...field} />;
+      return (
+        <div className="">
+          <Textarea rows={7} {...field} />
+        </div>
+      );
+
     case "file":
       return <Fileupload field={field} />;
     case "select":
