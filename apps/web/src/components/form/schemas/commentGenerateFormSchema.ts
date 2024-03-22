@@ -4,6 +4,9 @@ const commentGenerateFormSchema = z.object({
   commentType: z.string().trim().min(1, {
     message: "commentType is Required",
   }),
+  wordLength: z.string().trim().min(1, {
+    message: "Word Length is Required",
+  }),
   url: z
     .string()
     .trim()

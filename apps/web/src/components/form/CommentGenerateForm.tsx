@@ -55,6 +55,12 @@ const formFields = [
     label: "Url",
     type: "input",
   },
+  {
+    key: 3,
+    name: "wordLength",
+    label: "Word Length",
+    type: "input",
+  },
 ];
 
 type FormFieldsType = "commentType" | "url";
@@ -65,6 +71,7 @@ const CommentGenerateForm = () => {
     defaultValues: {
       commentType: "postReply",
       url: "",
+      wordLength: "",
     },
     mode: "onChange",
   });

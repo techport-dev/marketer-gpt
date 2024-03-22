@@ -36,7 +36,8 @@ export const aiResponseSlice = createSlice({
     ) => {
       state.isLoading = false;
       state.isSuccess = true;
-      state.data = [...state.data, action.payload];
+      // state.data = [...state.data, action.payload];
+      state.data = [action.payload];
     },
     setIsError: (state, action: PayloadAction<string>) => {
       state.isLoading = false;

@@ -105,6 +105,31 @@ export class GptService {
     return { systemPrompt, userPrompt };
   }
 
+  generateCommentReplyPrompts(data: CommentReplyPromptsParams) {
+    const { postTitle, imageDescription, subredditName, userComment } = data;
+
+    const systemPrompt = `
+    You are an AI, acting as a Reddit social media marketing expert. You've posted a product titled "${postTitle}" in the subreddit "r/${subredditName}", and included an image relevant to the post. A user has left a comment: "${userComment}".
+    ${imageDescription ? `The accompanying image is described as "${imageDescription}".` : ''}
+
+    Generate a reply with the following focus:
+    - Address the user's comment directly, providing a concise answer or information that adds value.
+    - Keep the reply brief and informative, ensuring it remains under 40 words to maintain clarity and focus.
+    - Use insights from the image and the post context to tailor your response, ensuring it is relevant and engaging.
+    - Maintain a professional tone throughout, avoiding emojis, hashtags, or any other form of embellishment. 
+
+    Your goal is to encourage further interaction in a manner that’s succinct and on-point, reflective of a marketer’s concise communication style.
+
+    Reply concisely.
+    `;
+
+    const userPrompt = `
+    Generate a reply comment to the following Reddit comment
+    `;
+
+    return { systemPrompt, userPrompt };
+  }
+
   generateFollowupPrompts(data: ConverstationData) {
     const { postTitle, imageDescription, subredditName, comments } = data;
 
@@ -136,31 +161,6 @@ export class GptService {
       systemPrompt,
       userPrompt,
     };
-  }
-
-  generateCommentReplyPrompts(data: CommentReplyPromptsParams) {
-    const { postTitle, imageDescription, subredditName, userComment } = data;
-
-    const systemPrompt = `
-    You are an AI, acting as a Reddit social media marketing expert. You've posted a product titled "${postTitle}" in the subreddit "r/${subredditName}", and included an image relevant to the post. A user has left a comment: "${userComment}".
-    ${imageDescription ? `The accompanying image is described as "${imageDescription}".` : ''}
-
-    Generate a reply with the following focus:
-    - Address the user's comment directly, providing a concise answer or information that adds value.
-    - Keep the reply brief and informative, ensuring it remains under 40 words to maintain clarity and focus.
-    - Use insights from the image and the post context to tailor your response, ensuring it is relevant and engaging.
-    - Maintain a professional tone throughout, avoiding emojis, hashtags, or any other form of embellishment. 
-
-    Your goal is to encourage further interaction in a manner that’s succinct and on-point, reflective of a marketer’s concise communication style.
-
-    Reply concisely.
-    `;
-
-    const userPrompt = `
-    Generate a reply comment to the following Reddit comment
-    `;
-
-    return { systemPrompt, userPrompt };
   }
 
   urlOperation(url: string) {
