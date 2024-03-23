@@ -5,6 +5,7 @@ import MessageItem from "./MessageItem";
 import EmptyMessage from "./EmptyMessage";
 import { useSelector } from "@/lib/redux/store";
 import { selectAiResponse } from "@/lib/redux/slices/aiResponse/selectors";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Messages = () => {
   const { isLoading, isError, data } = useSelector(selectAiResponse);
@@ -14,9 +15,6 @@ const Messages = () => {
   if (isLoading) {
     content = (
       <>
-        {data.map((message, index) => (
-          <MessageItem key={index} message={message} status="Finished" />
-        ))}
         <MessageItem
           message={{
             msg: "Generating response...",
@@ -25,17 +23,29 @@ const Messages = () => {
         />
       </>
     );
-  } else if (!isLoading && !isError && data.length > 0) {
-    content = data.map((message, index) => (
-      <MessageItem key={index} message={message} status="Finished" />
-    ));
-  } else if (!isLoading && !isError && data.length === 0) {
-    content = <EmptyMessage />;
+  } else if (!isLoading && !isError && data && data.content) {
+    content = <MessageItem message={data} status="Finished" />;
+  } else if (
+    !isLoading &&
+    !isError &&
+    (data === null || data?.content === "")
+  ) {
+    content = (
+      <div className="flex items-center justify-center h-full">
+        <EmptyMessage />
+      </div>
+    );
   } else if (!isLoading && isError) {
     content = <div>Something went wrong</div>;
   }
 
-  return <section>{content}</section>;
+  return (
+    <div>
+      <Card className="max-h-[60vh]">
+        <CardContent className="h-full p-0">{content}</CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default Messages;

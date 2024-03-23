@@ -5,19 +5,23 @@ type AiResponseType = {
   isSuccess: boolean;
   isError: boolean;
   error: string;
-  data: Array<{
+  data: {
     role: string;
     content: string;
     msg: string;
-  }>;
+  };
 };
 
 const initialState: AiResponseType = {
-  isLoading: false,
+  isLoading: true,
   isSuccess: false,
   isError: false,
   error: "",
-  data: [],
+  data: {
+    role: "",
+    content: "",
+    msg: "",
+  },
 };
 
 export const aiResponseSlice = createSlice({
@@ -37,7 +41,7 @@ export const aiResponseSlice = createSlice({
       state.isLoading = false;
       state.isSuccess = true;
       // state.data = [...state.data, action.payload];
-      state.data = [action.payload];
+      state.data = action.payload;
     },
     setIsError: (state, action: PayloadAction<string>) => {
       state.isLoading = false;

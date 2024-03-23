@@ -68,7 +68,7 @@ const MessageItem: FC<MessageItemProps> = ({ className, message, status }) => {
   return (
     <div className={`${cn("w-full my-3", className)}`}>
       <div className="px-4 py-2 text-base md:gap-6">
-        <div className="flex flex-1 text-base mx-auto gap-3 md:px-3 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem] border rounded-md py-3">
+        <div className="flex flex-1 text-base mx-auto gap-3 md:px-3 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem] rounded-md py-3">
           <div className="flex-shrink-0 flex flex-col relative items-end ">
             <div>
               <div className="pt-0.5 ">

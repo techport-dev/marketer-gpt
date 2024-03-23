@@ -30,29 +30,37 @@ const tabsCard = [
 
 export default function Home() {
   return (
-    <section className="container my-5">
-      <div className="flex flex-col-reverse gap-y-5 lg:flex-row lg:gap-x-5">
-        <Tabs defaultValue="title" className="w-[600px] mx-auto">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="title">Title</TabsTrigger>
-            <TabsTrigger value="comment">Comment</TabsTrigger>
-          </TabsList>
-          {tabsCard.map((data) => (
-            <TabsContent key={data.key} value={data.tabValue}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{data.title}</CardTitle>
-                  <CardDescription>{data.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">{data.content}</CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
-        <div className="flex-1 max-h-[80vh] min-h-[50vh] border overflow-y-auto mt-12 rounded mx-auto">
-          <Messages />
+    <>
+      <section className="container my-5">
+        <div className="flex flex-wrap flex-col-reverse gap-y-5 lg:flex-row lg:gap-x-5">
+          <div className="w-full lg:w-1/2 mx-auto">
+            <Tabs defaultValue="title">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="title">Title</TabsTrigger>
+                <TabsTrigger value="comment">Comment</TabsTrigger>
+              </TabsList>
+              {tabsCard.map((data) => (
+                <TabsContent key={data.key} value={data.tabValue}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{data.title}</CardTitle>
+                      <CardDescription>{data.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {data.content}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+          <div className="flex-1">
+            <div className="w-full sticky top-16">
+              <Messages />
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
