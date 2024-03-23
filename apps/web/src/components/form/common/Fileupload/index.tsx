@@ -16,11 +16,12 @@ export type FileuploadProps = {
   field: ControllerRenderProps<
     {
       images: File;
-      imageDescription: string;
-      subreddit: string;
-      lengthLimit: string;
-      avoidenceKeywords: string;
-      reference: string;
+      systemPrompt: string;
+      // imageDescription: string;
+      // subreddit: string;
+      // lengthLimit: string;
+      // avoidenceKeywords: string;
+      // reference: string;
     },
     FormFieldsType
   >;
