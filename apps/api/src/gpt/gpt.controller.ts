@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
@@ -43,6 +44,11 @@ export class GptController {
   @Post('aiResponse/comment')
   async aiResponseComment(@Body() dto: any) {
     return this.gptService.commentGenerate(dto);
+  }
+
+  @Get('test')
+  test() {
+    return 'hello server is working...';
   }
 
   // @Post('/comment/aiResponse')
